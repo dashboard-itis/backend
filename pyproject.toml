@@ -25,7 +25,6 @@ fixable = ["ALL"]
 select = [
     "E",
     "F",
-    "FAST",
     "PL",
     "I",
     "ARG",

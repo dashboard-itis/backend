@@ -1,10 +1,10 @@
 from datetime import date, datetime, timezone
-
+from typing import Optional
 from sqlmodel import Field, SQLModel
 
 
 class User(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
 
     email: str = Field(index=True)
     password_hash: str
@@ -12,23 +12,23 @@ class User(SQLModel, table=True):
     last_name: str
     role: str
 
-    group_id: int | None = Field(default=None, foreign_key='group.id')
+    group_id: Optional[int] = Field(default=None, foreign_key='group.id')
 
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class Group(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
 
     name: str = Field(index=True)
     year: int
-    description: str | None = None
+    description: Optional[str] = None
 
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class Stream(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
 
     group_id: int = Field(foreign_key='group.id')
     semester: int
@@ -36,53 +36,53 @@ class Stream(SQLModel, table=True):
 
 
 class Course(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
 
     stream_id: int = Field(foreign_key='stream.id')
     teacher_id: int = Field(foreign_key='user.id')
 
     name: str
-    description: str | None = None
+    description: Optional[str] = None
 
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class Assignment(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
 
     course_id: int = Field(foreign_key='course.id')
 
     title: str
     max_score: float
-    weight: float | None = None
+    weight: Optional[float] = None
 
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class Grade(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
 
     assignment_id: int = Field(foreign_key='assignment.id')
     student_id: int = Field(foreign_key='user.id')
 
     score: float
-    comment: str | None = None
+    comment: Optional[str] = None
 
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class Submission(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
 
     assignment_id: int = Field(foreign_key='assignment.id')
     student_id: int = Field(foreign_key='user.id')
 
     status: str
-    submitted_at: datetime | None = None
+    submitted_at: Optional[datetime] = None
 
 
 class Attendance(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
 
     course_id: int = Field(foreign_key='course.id')
     student_id: int = Field(foreign_key='user.id')
@@ -92,7 +92,7 @@ class Attendance(SQLModel, table=True):
 
 
 class PrivacyPolicy(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
 
     group_id: int = Field(foreign_key='group.id')
 
@@ -105,7 +105,7 @@ class PrivacyPolicy(SQLModel, table=True):
 
 
 class ImportSource(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
 
     stream_id: int = Field(foreign_key='stream.id')
     course_id: int = Field(foreign_key='course.id')
