@@ -1,0 +1,118 @@
+from datetime import date, datetime
+from typing import Optional
+
+from sqlmodel import Field, SQLModel
+
+
+class User(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    email: str = Field(index=True)
+    password_hash: str
+    first_name: str
+    last_name: str
+    role: str
+
+    group_id: Optional[int] = Field(default=None, foreign_key='group.id')
+
+    created_at: datetime
+
+
+class Group(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    name: str = Field(index=True)
+    year: int
+    description: Optional[str] = None
+
+    created_at: datetime
+
+
+class Stream(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    group_id: int = Field(foreign_key='group.id')
+    semester: int
+    year: int
+
+
+class Course(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    stream_id: int = Field(foreign_key='stream.id')
+    teacher_id: int = Field(foreign_key='user.id')
+
+    name: str
+    description: Optional[str] = None
+
+    created_at: datetime
+
+
+class Assignment(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    course_id: int = Field(foreign_key='course.id')
+
+    title: str
+    max_score: float
+    weight: Optional[float] = None
+
+    created_at: datetime
+
+
+class Grade(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    assignment_id: int = Field(foreign_key='assignment.id')
+    student_id: int = Field(foreign_key='user.id')
+
+    score: float
+    comment: Optional[str] = None
+
+    created_at: datetime
+
+
+class Submission(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    assignment_id: int = Field(foreign_key='assignment.id')
+    student_id: int = Field(foreign_key='user.id')
+
+    status: str
+    submitted_at: Optional[datetime] = None
+
+
+class Attendance(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    course_id: int = Field(foreign_key='course.id')
+    student_id: int = Field(foreign_key='user.id')
+
+    date: date
+    status: str
+
+
+class PrivacyPolicy(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    group_id: int = Field(foreign_key='group.id')
+
+    show_rating_to_students: bool
+    rating_mode: str
+    allow_student_stats: bool
+    version: int
+
+    updated_at: datetime
+
+
+class ImportSource(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    stream_id: int = Field(foreign_key='stream.id')
+    course_id: int = Field(foreign_key='course.id')
+
+    file_name: str
+    uploaded_by: str
+    status: str
+
+    uploaded_at: datetime
