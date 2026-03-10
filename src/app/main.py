@@ -1,7 +1,14 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+from app.database import create_db_and_tables
+
 app = FastAPI()
+
+
+@app.on_event('startup')
+def on_startup():
+    create_db_and_tables()
 
 
 class Item(BaseModel):
@@ -10,16 +17,16 @@ class Item(BaseModel):
     is_offer: bool | None = None
 
 
-@app.get("/")
+@app.get('/')
 def read_root():
-    return {"Hello": "World"}
+    return {'Hello': 'World'}
 
 
-@app.get("/items/{item_id}")
+@app.get('/items/{item_id}')
 def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "q": q}
+    return {'item_id': item_id, 'q': q}
 
 
-@app.put("/items/{item_id}")
+@app.put('/items/{item_id}')
 def update_item(item_id: int, item: Item):
-    return {"item_name": item.name, "item_id": item_id}
+    return {'item_name': item.name, 'item_id': item_id}
