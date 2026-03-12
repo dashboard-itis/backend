@@ -1,14 +1,18 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 
 from app.database import create_db_and_tables
 
-app = FastAPI()
 
-
-@app.on_event('startup')
-def on_startup():
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
     create_db_and_tables()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 class Item(BaseModel):
