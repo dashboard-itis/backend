@@ -33,8 +33,13 @@ Dashboard ITIS — это веб-приложение с интуитивно п
 - **uv** — package manager
 - **ruff** — linter & formatter
 
+
 ---
 
 ## How to Run
 
-Инструкция по запуску проекта будет добавлена позже.
+Backend part project
+
+to start on root project:
+
+uvicorn app.main:app --reload --app-dir src
