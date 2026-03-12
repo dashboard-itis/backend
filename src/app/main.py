@@ -15,6 +15,11 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
+@app.on_event('startup')
+def on_startup():
+    create_db_and_tables()
+
+
 class Item(BaseModel):
     name: str
     price: float
