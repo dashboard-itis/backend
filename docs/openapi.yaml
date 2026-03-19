@@ -1,0 +1,3035 @@
+openapi: 3.0.3
+info:
+  title: Academic Performance API
+  description: API for student academic performance tracking system
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local development server
+
+tags:
+  - name: Users
+    description: User management
+  - name: Groups
+    description: Academic groups management
+  - name: Streams
+    description: Streams and semesters management
+  - name: Courses
+    description: Courses management
+  - name: Assignments
+    description: Assignments management
+  - name: Submissions
+    description: Submissions management
+  - name: Grades
+    description: Grades management
+  - name: Attendance
+    description: Attendance management
+  - name: PrivacyPolicies
+    description: Privacy policies management
+  - name: ImportSources
+    description: Import sources management
+  - name: Analytics
+    description: Analytics and statistics
+  - name: Auth
+    description: Authentication
+
+paths:
+  /auth/token:
+    post:
+      tags: [Auth]
+      summary: Get access token
+      description: OAuth2 password flow for obtaining JWT token with role-based scopes
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+                - grant_type
+              properties:
+                grant_type:
+                  type: string
+                  enum: [password]
+                  example: password
+                username:
+                  type: string
+                  format: email
+                  example: curator@university.edu
+                password:
+                  type: string
+                  format: password
+                  example: securePass123
+                scope:
+                  type: string
+                  example: "student curator"
+      responses:
+        "200":
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  token_type:
+                    type: string
+                    example: bearer
+                  expires_in:
+                    type: integer
+                    example: 86400
+                  refresh_token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  scope:
+                    type: string
+                    example: "student curator"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - refresh_token
+                - grant_type
+              properties:
+                grant_type:
+                  type: string
+                  enum: [refresh_token]
+                  example: refresh_token
+                refresh_token:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      responses:
+        "200":
+          description: Token successfully refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+
+  /users:
+    get:
+      tags: [Users]
+      summary: Get users list
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: page
+          in: query
+          description: Page number (starting from 0)
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+        - name: page_size
+          in: query
+          description: Page size
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+            example: 20
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPage"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    post:
+      tags: [Users]
+      summary: Create new user
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: User successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /users/{user_id}:
+    get:
+      tags: [Users]
+      summary: Get user by ID
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Users]
+      summary: Update user
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+      responses:
+        "200":
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    delete:
+      tags: [Users]
+      summary: Delete user
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "204":
+          description: User deleted
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /groups:
+    get:
+      tags: [Groups]
+      summary: Get groups list
+      description: Accessible to admins and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: List of groups
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupPage"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    post:
+      tags: [Groups]
+      summary: Create new group
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGroupRequest"
+      responses:
+        "201":
+          description: Group created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /groups/{group_id}:
+    get:
+      tags: [Groups]
+      summary: Get group by ID
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Group found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Groups]
+      summary: Update group
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateGroupRequest"
+      responses:
+        "200":
+          description: Group updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    delete:
+      tags: [Groups]
+      summary: Delete group
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "204":
+          description: Group deleted
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /groups/{group_id}/streams:
+    get:
+      tags: [Streams]
+      summary: Get group streams list
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: List of streams
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StreamPage"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    post:
+      tags: [Streams]
+      summary: Create new stream
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStreamRequest"
+      responses:
+        "201":
+          description: Stream created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stream"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /streams/{stream_id}:
+    get:
+      tags: [Streams]
+      summary: Get stream by ID
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: stream_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Stream found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stream"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Streams]
+      summary: Update stream
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: stream_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStreamRequest"
+      responses:
+        "200":
+          description: Stream updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stream"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    delete:
+      tags: [Streams]
+      summary: Delete stream
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: stream_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "204":
+          description: Stream deleted
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /streams/{stream_id}/courses:
+    get:
+      tags: [Courses]
+      summary: Get stream courses list
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: stream_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: List of courses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoursePage"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    post:
+      tags: [Courses]
+      summary: Create new course
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: stream_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCourseRequest"
+      responses:
+        "201":
+          description: Course created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /courses/{course_id}:
+    get:
+      tags: [Courses]
+      summary: Get course by ID
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 101
+      responses:
+        "200":
+          description: Course found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Courses]
+      summary: Update course
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 101
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCourseRequest"
+      responses:
+        "200":
+          description: Course updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    delete:
+      tags: [Courses]
+      summary: Delete course
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 101
+      responses:
+        "204":
+          description: Course deleted
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /courses/{course_id}/assignments:
+    get:
+      tags: [Assignments]
+      summary: Get course assignments list
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 101
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: List of assignments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssignmentPage"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    post:
+      tags: [Assignments]
+      summary: Create new assignment
+      description: Accessible to admins and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 101
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAssignmentRequest"
+      responses:
+        "201":
+          description: Assignment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /assignments/{assignment_id}:
+    get:
+      tags: [Assignments]
+      summary: Get assignment by ID
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: assignment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 201
+      responses:
+        "200":
+          description: Assignment found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Assignments]
+      summary: Update assignment
+      description: Accessible to admins and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: assignment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 201
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAssignmentRequest"
+      responses:
+        "200":
+          description: Assignment updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    delete:
+      tags: [Assignments]
+      summary: Delete assignment
+      description: Accessible to admins and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: assignment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 201
+      responses:
+        "204":
+          description: Assignment deleted
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /assignments/{assignment_id}/submissions:
+    get:
+      tags: [Submissions]
+      summary: Get assignment submissions list
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: assignment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 201
+        - name: student_id
+          in: query
+          description: Filter by student (for curator/admin)
+          schema:
+            type: integer
+            example: 301
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [PENDING, SUBMITTED, GRADED]
+            example: SUBMITTED
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: List of submissions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmissionPage"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    post:
+      tags: [Submissions]
+      summary: Create submission
+      description: Student can only create their own submission
+      security:
+        - oauth2: [student]
+      parameters:
+        - name: assignment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 201
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSubmissionRequest"
+      responses:
+        "201":
+          description: Submission created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /submissions/{submission_id}:
+    get:
+      tags: [Submissions]
+      summary: Get submission by ID
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: submission_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 301
+      responses:
+        "200":
+          description: Submission found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Submissions]
+      summary: Update submission
+      description: Student can only update their own submission
+      security:
+        - oauth2: [student]
+      parameters:
+        - name: submission_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 301
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSubmissionRequest"
+      responses:
+        "200":
+          description: Submission updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /assignments/{assignment_id}/grades:
+    get:
+      tags: [Grades]
+      summary: Get assignment grades list
+      description: Accessible to admins and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: assignment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 201
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: List of grades
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradePage"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    post:
+      tags: [Grades]
+      summary: Assign grade
+      description: Accessible to admins and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: assignment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 201
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGradeRequest"
+      responses:
+        "201":
+          description: Grade assigned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Grade"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /grades/{grade_id}:
+    get:
+      tags: [Grades]
+      summary: Get grade by ID
+      description: Accessible to admins and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: grade_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 401
+      responses:
+        "200":
+          description: Grade found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Grade"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Grades]
+      summary: Update grade
+      description: Accessible to admins and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: grade_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 401
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateGradeRequest"
+      responses:
+        "200":
+          description: Grade updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Grade"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /students/{student_id}/grades:
+    get:
+      tags: [Grades]
+      summary: Get student grades
+      description: Student can only see their own grades
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 301
+        - name: course_id
+          in: query
+          description: Filter by course (optional)
+          schema:
+            type: integer
+            example: 101
+        - name: semester
+          in: query
+          description: Filter by semester (optional)
+          schema:
+            type: string
+            enum: [SPRING, FALL]
+            example: FALL
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: List of student grades
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradePage"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /students/{student_id}/attendance:
+    get:
+      tags: [Attendance]
+      summary: Get student attendance
+      description: Student can only see their own attendance
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 301
+        - name: course_id
+          in: query
+          description: Filter by course (optional)
+          schema:
+            type: integer
+            example: 101
+        - name: date_from
+          in: query
+          description: Start date
+          schema:
+            type: string
+            format: date
+            example: "2026-03-01"
+        - name: date_to
+          in: query
+          description: End date
+          schema:
+            type: string
+            format: date
+            example: "2026-03-31"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: List of attendance records
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendancePage"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    post:
+      tags: [Attendance]
+      summary: Add attendance record
+      description: Accessible to admins and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 301
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAttendanceRequest"
+      responses:
+        "201":
+          description: Record created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attendance"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /courses/{course_id}/attendance:
+    get:
+      tags: [Attendance]
+      summary: Get course attendance
+      description: For teachers and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 101
+        - name: date
+          in: query
+          description: Filter by date
+          schema:
+            type: string
+            format: date
+            example: "2026-03-12"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: List of course attendance records
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendancePage"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /attendance/{attendance_id}:
+    get:
+      tags: [Attendance]
+      summary: Get attendance record by ID
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: attendance_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 501
+      responses:
+        "200":
+          description: Record found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attendance"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Attendance]
+      summary: Update attendance record
+      description: Accessible to admins and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: attendance_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 501
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAttendanceRequest"
+      responses:
+        "200":
+          description: Record updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attendance"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    delete:
+      tags: [Attendance]
+      summary: Delete attendance record
+      description: Accessible to admins and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: attendance_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 501
+      responses:
+        "204":
+          description: Record deleted
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /groups/{group_id}/privacy-policy:
+    get:
+      tags: [PrivacyPolicies]
+      summary: Get group privacy policy
+      description: Accessible to admins and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Privacy policy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrivacyPolicy"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      tags: [PrivacyPolicies]
+      summary: Create privacy policy
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePrivacyPolicyRequest"
+      responses:
+        "201":
+          description: Policy created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrivacyPolicy"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    put:
+      tags: [PrivacyPolicies]
+      summary: Update privacy policy
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePrivacyPolicyRequest"
+      responses:
+        "200":
+          description: Policy updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrivacyPolicy"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    delete:
+      tags: [PrivacyPolicies]
+      summary: Delete privacy policy
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "204":
+          description: Policy deleted
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /streams/{stream_id}/import-sources:
+    get:
+      tags: [ImportSources]
+      summary: Get stream import sources list
+      description: Accessible to admins and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: stream_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [PENDING, PROCESSING, COMPLETED, FAILED]
+            example: COMPLETED
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: List of import sources
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportSourcePage"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+    post:
+      tags: [ImportSources]
+      summary: Create import source
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: stream_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateImportSourceRequest"
+      responses:
+        "201":
+          description: Import source created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportSource"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /import-sources/{import_id}:
+    get:
+      tags: [ImportSources]
+      summary: Get import source by ID
+      description: Accessible to admins and curators
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: import_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Import source found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportSource"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [ImportSources]
+      summary: Update import status
+      description: Admin only access
+      security:
+        - oauth2: [admin]
+      parameters:
+        - name: import_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateImportSourceRequest"
+      responses:
+        "200":
+          description: Import source updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportSource"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /groups/{group_id}/analytics:
+    get:
+      tags: [Analytics]
+      summary: Get group analytics
+      description: |
+        Returns aggregated group metrics:
+        - Average score
+        - Grade distribution
+        - Attendance percentage
+        - Dynamics over period
+      security:
+        - oauth2: [admin, curator]
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: semester
+          in: query
+          description: Filter by semester
+          schema:
+            type: string
+            enum: [SPRING, FALL]
+            example: FALL
+        - name: year
+          in: query
+          description: Filter by year
+          schema:
+            type: integer
+            example: 2026
+      responses:
+        "200":
+          description: Group analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupAnalytics"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /groups/{group_id}/ratings:
+    get:
+      tags: [Analytics]
+      summary: Get group student ratings
+      description: |
+        For curator/admin - full rating with names
+        For students/class representatives - anonymized rating (determined by privacy policy)
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: semester
+          in: query
+          schema:
+            type: string
+            enum: [SPRING, FALL]
+            example: FALL
+        - name: year
+          in: query
+          schema:
+            type: integer
+            example: 2026
+        - name: course_id
+          in: query
+          description: Filter by specific course
+          schema:
+            type: integer
+            example: 101
+      responses:
+        "200":
+          description: Student ratings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  group_id:
+                    type: integer
+                    example: 1
+                  ratings:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/StudentRating"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+  /students/{student_id}/analytics:
+    get:
+      tags: [Analytics]
+      summary: Get student analytics
+      description: |
+        Student can only see their own analytics:
+        - Average score
+        - Rating position
+        - Attendance
+      security:
+        - oauth2: [admin, curator, student]
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 301
+        - name: semester
+          in: query
+          schema:
+            type: string
+            enum: [SPRING, FALL]
+            example: FALL
+        - name: year
+          in: query
+          schema:
+            type: integer
+            example: 2026
+      responses:
+        "200":
+          description: Student analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentAnalytics"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/ValidationError'
+
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: /auth/token
+          refreshUrl: /auth/refresh
+          scopes:
+            student: "Access to own data and anonymized group statistics"
+            curator: "Access to aggregated group metrics and anonymized ratings"
+            admin: "Full access to all functions"
+
+  responses:
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                format: date-time
+                example: "2026-03-12T12:00:00Z"
+              status:
+                type: integer
+                example: 422
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    field:
+                      type: string
+                      example: "page"
+                    message:
+                      type: string
+                      example: "must be greater than or equal to 0"
+                    rejected_value:
+                      type: any
+                      example: -1
+              path:
+                type: string
+                example: "/users"
+            required: [timestamp, status, errors, path]
+
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            timestamp: "2026-03-12T12:00:00Z"
+            status: 400
+            error: INVALID_REQUEST
+            message: "Malformed request syntax"
+            path: "/users"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            timestamp: "2026-03-12T12:00:00Z"
+            status: 401
+            error: UNAUTHORIZED
+            message: "Missing or invalid authentication token"
+            path: "/users"
+
+    Forbidden:
+      description: Access forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            timestamp: "2026-03-12T12:00:00Z"
+            status: 403
+            error: FORBIDDEN
+            message: "Insufficient scope. Required: admin"
+            path: "/users/1"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            timestamp: "2026-03-12T12:00:00Z"
+            status: 404
+            error: USER_NOT_FOUND
+            message: "User with id 123 does not exist"
+            path: "/users/123"
+
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            emailExists:
+              value:
+                timestamp: "2026-03-12T12:00:00Z"
+                status: 409
+                error: EMAIL_ALREADY_EXISTS
+                message: "User with this email already exists"
+                path: "/users"
+            groupExists:
+              value:
+                timestamp: "2026-03-12T12:00:00Z"
+                status: 409
+                error: GROUP_ALREADY_EXISTS
+                message: "Group with this name already exists"
+                path: "/groups"
+            streamExists:
+              value:
+                timestamp: "2026-03-12T12:00:00Z"
+                status: 409
+                error: STREAM_ALREADY_EXISTS
+                message: "Stream for this group, semester and year already exists"
+                path: "/streams"
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            timestamp: "2026-03-12T12:00:00Z"
+            status: 500
+            error: INTERNAL_SERVER_ERROR
+            message: "An unexpected error occurred"
+            path: "/users"
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-03-12T12:00:00Z"
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: INVALID_REQUEST
+        message:
+          type: string
+          example: "Malformed request syntax"
+        path:
+          type: string
+          example: "/users"
+      required: [timestamp, status, error, message, path]
+
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        token_type:
+          type: string
+          example: bearer
+        expires_in:
+          type: integer
+          example: 86400
+        refresh_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        scope:
+          type: string
+          example: "student curator"
+      required: [access_token, token_type, expires_in, refresh_token, scope]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          format: email
+          example: student@university.edu
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        role:
+          type: string
+          enum: [STUDENT, CURATOR, ADMIN]
+          example: STUDENT
+        group_id:
+          type: integer
+          nullable: true
+          example: 3
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-01-15T10:30:00Z"
+      required: [id, email, first_name, last_name, role, created_at]
+
+    CreateUserRequest:
+      type: object
+      required: [email, password, first_name, last_name, role]
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 5
+          maxLength: 100
+          example: student@university.edu
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: securePass123
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: John
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: Doe
+        role:
+          type: string
+          enum: [STUDENT, CURATOR, ADMIN]
+          example: STUDENT
+        group_id:
+          type: integer
+          nullable: true
+          example: 3
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: student@university.edu
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: newSecurePass123
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: John
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: Doe
+        role:
+          type: string
+          enum: [STUDENT, CURATOR, ADMIN]
+          example: STUDENT
+        group_id:
+          type: integer
+          nullable: true
+          example: 3
+
+    UserPage:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 150
+        page:
+          type: integer
+          example: 0
+        page_size:
+          type: integer
+          example: 20
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+      required: [count, page, page_size, results]
+
+    Group:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "CS-2026"
+        year:
+          type: integer
+          example: 2026
+        description:
+          type: string
+          nullable: true
+          example: "Computer Science undergraduate group"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-01-15T10:30:00Z"
+      required: [id, name, year, created_at]
+
+    CreateGroupRequest:
+      type: object
+      required: [name, year]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "CS-2026"
+        year:
+          type: integer
+          minimum: 2000
+          maximum: 2100
+          example: 2026
+        description:
+          type: string
+          nullable: true
+          example: "Computer Science undergraduate group"
+
+    UpdateGroupRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "CS-2026"
+        year:
+          type: integer
+          minimum: 2000
+          maximum: 2100
+          example: 2026
+        description:
+          type: string
+          nullable: true
+          example: "Updated description"
+
+    GroupPage:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 25
+        page:
+          type: integer
+          example: 0
+        page_size:
+          type: integer
+          example: 20
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+      required: [count, page, page_size, results]
+
+    Stream:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        group_id:
+          type: integer
+          example: 1
+        semester:
+          type: integer
+          example: 1
+        year:
+          type: integer
+          example: 2026
+      required: [id, group_id, semester, year]
+
+    CreateStreamRequest:
+      type: object
+      required: [group_id, semester, year]
+      properties:
+        group_id:
+          type: integer
+          example: 1
+        semester:
+          type: integer
+          minimum: 1
+          maximum: 2
+          example: 1
+        year:
+          type: integer
+          minimum: 2000
+          maximum: 2100
+          example: 2026
+
+    UpdateStreamRequest:
+      type: object
+      properties:
+        group_id:
+          type: integer
+          example: 1
+        semester:
+          type: integer
+          minimum: 1
+          maximum: 2
+          example: 1
+        year:
+          type: integer
+          minimum: 2000
+          maximum: 2100
+          example: 2026
+
+    StreamPage:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 8
+        page:
+          type: integer
+          example: 0
+        page_size:
+          type: integer
+          example: 20
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stream'
+      required: [count, page, page_size, results]
+
+    Course:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 101
+        name:
+          type: string
+          example: "Mathematics 101"
+        stream_id:
+          type: integer
+          example: 1
+        teacher_id:
+          type: integer
+          example: 10
+        description:
+          type: string
+          nullable: true
+          example: "Introductory course in mathematics"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-01-15T10:30:00Z"
+      required: [id, name, stream_id, teacher_id, created_at]
+
+    CreateCourseRequest:
+      type: object
+      required: [name, stream_id, teacher_id]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+          example: "Mathematics 101"
+        stream_id:
+          type: integer
+          example: 1
+        teacher_id:
+          type: integer
+          example: 10
+        description:
+          type: string
+          nullable: true
+          example: "Introductory course in mathematics"
+
+    UpdateCourseRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+          example: "Mathematics 101 Advanced"
+        stream_id:
+          type: integer
+          example: 1
+        teacher_id:
+          type: integer
+          example: 10
+        description:
+          type: string
+          nullable: true
+          example: "Advanced mathematics course"
+
+    CoursePage:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 12
+        page:
+          type: integer
+          example: 0
+        page_size:
+          type: integer
+          example: 20
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Course'
+      required: [count, page, page_size, results]
+
+    Assignment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 201
+        title:
+          type: string
+          example: "Homework 1"
+        description:
+          type: string
+          nullable: true
+          example: "Solve exercises 1-10"
+        course_id:
+          type: integer
+          example: 101
+        teacher_id:
+          type: integer
+          example: 10
+        max_score:
+          type: number
+          example: 100
+        weight:
+          type: number
+          nullable: true
+          example: 1.0
+        due_date:
+          type: string
+          format: date-time
+          example: "2026-03-20T23:59:59Z"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-03-01T10:30:00Z"
+      required: [id, title, course_id, teacher_id, max_score, due_date, created_at]
+
+    CreateAssignmentRequest:
+      type: object
+      required: [title, course_id, teacher_id, max_score, due_date]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          example: "Homework 1"
+        description:
+          type: string
+          nullable: true
+          example: "Solve exercises 1-10"
+        course_id:
+          type: integer
+          example: 101
+        teacher_id:
+          type: integer
+          example: 10
+        max_score:
+          type: number
+          minimum: 0
+          example: 100
+        weight:
+          type: number
+          minimum: 0
+          maximum: 1
+          nullable: true
+          example: 1.0
+        due_date:
+          type: string
+          format: date-time
+          example: "2026-03-20T23:59:59Z"
+
+    UpdateAssignmentRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          example: "Homework 1 Updated"
+        description:
+          type: string
+          nullable: true
+          example: "Solve exercises 1-15"
+        max_score:
+          type: number
+          minimum: 0
+          example: 100
+        weight:
+          type: number
+          minimum: 0
+          maximum: 1
+          nullable: true
+          example: 1.0
+        due_date:
+          type: string
+          format: date-time
+          example: "2026-03-22T23:59:59Z"
+
+    AssignmentPage:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 15
+        page:
+          type: integer
+          example: 0
+        page_size:
+          type: integer
+          example: 20
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assignment'
+      required: [count, page, page_size, results]
+
+    Submission:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 301
+        assignment_id:
+          type: integer
+          example: 201
+        student_id:
+          type: integer
+          example: 301
+        content:
+          type: string
+          example: "Answers to homework"
+        status:
+          type: string
+          enum: [PENDING, SUBMITTED, GRADED]
+          example: SUBMITTED
+        submitted_at:
+          type: string
+          format: date-time
+          example: "2026-03-12T12:50:00Z"
+        grade:
+          type: number
+          nullable: true
+          example: 85.5
+      required: [id, assignment_id, student_id, status, submitted_at]
+
+    CreateSubmissionRequest:
+      type: object
+      required: [assignment_id, student_id, content]
+      properties:
+        assignment_id:
+          type: integer
+          example: 201
+        student_id:
+          type: integer
+          example: 301
+        content:
+          type: string
+          minLength: 1
+          example: "Answers to homework"
+
+    UpdateSubmissionRequest:
+      type: object
+      properties:
+        content:
+          type: string
+          example: "Updated answers"
+        status:
+          type: string
+          enum: [PENDING, SUBMITTED, GRADED]
+          example: GRADED
+
+    SubmissionPage:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 10
+        page:
+          type: integer
+          example: 0
+        page_size:
+          type: integer
+          example: 20
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Submission'
+      required: [count, page, page_size, results]
+
+    Grade:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 401
+        student_id:
+          type: integer
+          example: 301
+        assignment_id:
+          type: integer
+          example: 201
+        score:
+          type: number
+          example: 95
+        comment:
+          type: string
+          nullable: true
+          example: "Excellent work!"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-03-12T12:55:00Z"
+      required: [id, student_id, assignment_id, score, created_at]
+
+    CreateGradeRequest:
+      type: object
+      required: [student_id, assignment_id, score]
+      properties:
+        student_id:
+          type: integer
+          example: 301
+        assignment_id:
+          type: integer
+          example: 201
+        score:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 95
+        comment:
+          type: string
+          nullable: true
+          example: "Good job"
+
+    UpdateGradeRequest:
+      type: object
+      required: [score]
+      properties:
+        score:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 98
+        comment:
+          type: string
+          nullable: true
+          example: "Even better!"
+
+    GradePage:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 50
+        page:
+          type: integer
+          example: 0
+        page_size:
+          type: integer
+          example: 20
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Grade'
+      required: [count, page, page_size, results]
+
+    Attendance:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 501
+        student_id:
+          type: integer
+          example: 301
+        course_id:
+          type: integer
+          example: 101
+        date:
+          type: string
+          format: date
+          example: "2026-03-12"
+        status:
+          type: string
+          enum: [PRESENT, ABSENT, EXCUSED]
+          example: PRESENT
+      required: [id, student_id, course_id, date, status]
+
+    CreateAttendanceRequest:
+      type: object
+      required: [student_id, course_id, date, status]
+      properties:
+        student_id:
+          type: integer
+          example: 301
+        course_id:
+          type: integer
+          example: 101
+        date:
+          type: string
+          format: date
+          example: "2026-03-12"
+        status:
+          type: string
+          enum: [PRESENT, ABSENT, EXCUSED]
+          example: PRESENT
+
+    UpdateAttendanceRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [PRESENT, ABSENT, EXCUSED]
+          example: EXCUSED
+
+    AttendancePage:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 25
+        page:
+          type: integer
+          example: 0
+        page_size:
+          type: integer
+          example: 20
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attendance'
+      required: [count, page, page_size, results]
+
+    PrivacyPolicy:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        group_id:
+          type: integer
+          example: 1
+        show_rating_to_students:
+          type: boolean
+          example: true
+        rating_mode:
+          type: string
+          enum: [FULL, ANONYMIZED]
+          example: ANONYMIZED
+        allow_student_stats:
+          type: boolean
+          example: true
+        version:
+          type: integer
+          example: 1
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-03-12T12:00:00Z"
+      required: [id, group_id, show_rating_to_students, rating_mode, allow_student_stats, version, updated_at]
+
+    CreatePrivacyPolicyRequest:
+      type: object
+      required: [group_id, show_rating_to_students, rating_mode, allow_student_stats]
+      properties:
+        group_id:
+          type: integer
+          example: 1
+        show_rating_to_students:
+          type: boolean
+          example: true
+        rating_mode:
+          type: string
+          enum: [FULL, ANONYMIZED]
+          example: ANONYMIZED
+        allow_student_stats:
+          type: boolean
+          example: true
+
+    UpdatePrivacyPolicyRequest:
+      type: object
+      properties:
+        show_rating_to_students:
+          type: boolean
+          example: true
+        rating_mode:
+          type: string
+          enum: [FULL, ANONYMIZED]
+          example: ANONYMIZED
+        allow_student_stats:
+          type: boolean
+          example: true
+
+    ImportSource:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        stream_id:
+          type: integer
+          example: 1
+        course_id:
+          type: integer
+          example: 101
+        file_name:
+          type: string
+          example: "grades_spring_2026.xlsx"
+        uploaded_by:
+          type: string
+          example: "admin@university.edu"
+        status:
+          type: string
+          enum: [PENDING, PROCESSING, COMPLETED, FAILED]
+          example: COMPLETED
+        uploaded_at:
+          type: string
+          format: date-time
+          example: "2026-03-12T10:30:00Z"
+      required: [id, stream_id, course_id, file_name, uploaded_by, status, uploaded_at]
+
+    CreateImportSourceRequest:
+      type: object
+      required: [stream_id, course_id, file_name, uploaded_by]
+      properties:
+        stream_id:
+          type: integer
+          example: 1
+        course_id:
+          type: integer
+          example: 101
+        file_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: "grades_spring_2026.xlsx"
+        uploaded_by:
+          type: string
+          example: "admin@university.edu"
+
+    UpdateImportSourceRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [PENDING, PROCESSING, COMPLETED, FAILED]
+          example: COMPLETED
+
+    ImportSourcePage:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 5
+        page:
+          type: integer
+          example: 0
+        page_size:
+          type: integer
+          example: 20
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportSource'
+      required: [count, page, page_size, results]
+
+    GroupAnalytics:
+      type: object
+      properties:
+        group_id:
+          type: integer
+          example: 1
+        average_score:
+          type: number
+          example: 82.5
+        submission_rate:
+          type: number
+          example: 0.95
+        attendance_rate:
+          type: number
+          example: 0.88
+        distribution:
+          type: object
+          additionalProperties:
+            type: integer
+          example:
+            "A": 5
+            "B": 8
+            "C": 4
+            "D": 2
+            "F": 1
+      required: [group_id, average_score, submission_rate, attendance_rate, distribution]
+
+    StudentAnalytics:
+      type: object
+      properties:
+        student_id:
+          type: integer
+          example: 301
+        average_score:
+          type: number
+          example: 91.2
+        rank:
+          type: integer
+          example: 3
+        attendance_rate:
+          type: number
+          example: 0.95
+        submission_rate:
+          type: number
+          example: 1.0
+      required: [student_id, average_score, rank, attendance_rate, submission_rate]
+
+    StudentRating:
+      type: object
+      properties:
+        student_id:
+          type: integer
+          example: 301
+        rank:
+          type: integer
+          example: 3
+        average_score:
+          type: number
+          example: 91.2
+        full_name:
+          type: string
+          nullable: true
+          description: "Populated only for curator/admin"
+          example: "John Doe"
+        anonymized_id:
+          type: string
+          nullable: true
+          description: "Anonymized identifier for students"
+          example: "STU-2026-001"
+      required: [student_id, rank, average_score]
+
+security:
+  - oauth2: [student, curator, admin]
