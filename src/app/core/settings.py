@@ -1,8 +1,11 @@
 from functools import lru_cache
+
+from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy.engine import URL
 
 
-class Settings(BaseSettings):
+class DatabaseSettings(BaseSettings):
     db_schema: str = "postgresql+asyncpg"
     db_host: str = "localhost"
     db_port: int = 5432
@@ -10,26 +13,40 @@ class Settings(BaseSettings):
     db_password: str = ""
     db_name: str = "app_db"
 
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    @computed_field
+    @property
+    def database_url(self) -> str:
+        return URL.create(
+            drivername=self.db_schema,
+            username=self.db_user,
+            password=self.db_password,
+            host=self.db_host,
+            port=self.db_port,
+            database=self.db_name,
+        ).render_as_string(hide_password=False)
+
+
+class AppSettings(BaseSettings):
     app_name: str = "Academic Performance API"
     app_version: str = "1.0.0"
-
-    secret_key: str
-    algorithm: str = "HS256"
-    access_token_expire_minutes: int = 30
 
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        extra="ignore"
+        extra="ignore",
     )
 
-    @property
-    def DATABASE_URL(self) -> str:
-        return (
-            f"{self.db_schema}://{self.db_user}:"
-            f"{self.db_password}@{self.db_host}:"
-            f"{self.db_port}/{self.db_name}"
-        )
+
+class Settings:
+    def __init__(self) -> None:
+        self.db = DatabaseSettings()
+        self.app = AppSettings()
 
 
 @lru_cache

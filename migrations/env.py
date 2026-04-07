@@ -9,15 +9,12 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-# Добавляем корень проекта в PYTHONPATH
 sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
 
-# Импорт настроек и Base
 from app.db.database import Base
 from app.core.settings import settings
 
-# ВАЖНО: импорт моделей, чтобы Alembic видел таблицы
-from app.models import (
+from app.models.db import (
     user,
     group,
     course,
@@ -83,3 +80,16 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
+from app.models import (
+    user,
+    group,
+    course,
+    stream,
+    assignment,
+    grade,
+    submission,
+    attendance,
+    privacy_policy,
+    import_source,
+)
+

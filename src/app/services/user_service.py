@@ -1,9 +1,10 @@
-from app.dependencies.session import SessionDep
-from app.utils.repository import Repository
-from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate, UserPublic
-from app.utils.security import hash_password
 from typing import Optional
+
+from app.dependencies.session import SessionDep
+from app.models.user import User
+from app.schemas.user import UserCreate, UserPublic, UserUpdate
+from app.utils.repository import Repository
+from app.utils.security import hash_password
 
 
 class UserService:
@@ -18,25 +19,23 @@ class UserService:
         email: Optional[str] = None,
         role: Optional[str] = None,
         group_id: Optional[int] = None,
-        search: Optional[str] = None
+        search: Optional[str] = None,
     ) -> list[UserPublic]:
-
-        filters = {}
-        if email:
-            filters["email"] = email
-        if role:
-            filters["role"] = role
-        if group_id:
-            filters["group_id"] = group_id
+        filters = {
+            "email": email,
+            "role": role,
+            "group_id": group_id,
+        }
+        filters = {key: value for key, value in filters.items() if value is not None}
 
         users = await self.repo.get_all(
             skip=skip,
             limit=limit,
             filters=filters,
-            search=search
+            search=search,
         )
 
-        return [UserPublic.model_validate(u) for u in users]
+        return [UserPublic.model_validate(user) for user in users]
 
     async def get_by_id(self, user_id: int) -> Optional[UserPublic]:
         user = await self.repo.get(user_id)
@@ -59,7 +58,7 @@ class UserService:
             first_name=user_data.first_name,
             last_name=user_data.last_name,
             role=user_data.role.value,
-            group_id=user_data.group_id
+            group_id=user_data.group_id,
         )
 
         return UserPublic.model_validate(user)
@@ -69,6 +68,9 @@ class UserService:
 
         if "password" in update_data:
             update_data["password_hash"] = hash_password(update_data.pop("password"))
+
+        if "role" in update_data and update_data["role"] is not None:
+            update_data["role"] = update_data["role"].value
 
         user = await self.repo.update(user_id, **update_data)
         return UserPublic.model_validate(user) if user else None

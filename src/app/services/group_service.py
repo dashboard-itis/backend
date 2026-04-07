@@ -1,8 +1,9 @@
-from app.dependencies.session import SessionDep
-from app.utils.repository import Repository
-from app.models.group import Group
-from app.schemas.group import GroupCreate, GroupUpdate, GroupPublic
 from typing import Optional
+
+from app.dependencies.session import SessionDep
+from app.models.group import Group
+from app.schemas.group import GroupCreate, GroupPublic, GroupUpdate
+from app.utils.repository import Repository
 
 
 class GroupService:
@@ -16,23 +17,22 @@ class GroupService:
         limit: int = 100,
         name: Optional[str] = None,
         year: Optional[int] = None,
-        search: Optional[str] = None
+        search: Optional[str] = None,
     ) -> list[GroupPublic]:
-
-        filters = {}
-        if name:
-            filters["name"] = name
-        if year:
-            filters["year"] = year
+        filters = {
+            "name": name,
+            "year": year,
+        }
+        filters = {key: value for key, value in filters.items() if value is not None}
 
         groups = await self.repo.get_all(
             skip=skip,
             limit=limit,
             filters=filters,
-            search=search
+            search=search,
         )
 
-        return [GroupPublic.model_validate(g) for g in groups]
+        return [GroupPublic.model_validate(group) for group in groups]
 
     async def get_by_id(self, group_id: int) -> Optional[GroupPublic]:
         group = await self.repo.get(group_id)
@@ -54,7 +54,6 @@ class GroupService:
 
     async def update(self, group_id: int, group_data: GroupUpdate) -> Optional[GroupPublic]:
         update_data = group_data.model_dump(exclude_unset=True)
-
         group = await self.repo.update(group_id, **update_data)
         return GroupPublic.model_validate(group) if group else None
 
