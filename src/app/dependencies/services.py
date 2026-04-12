@@ -2,22 +2,26 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.dependencies.session import SessionDep
+from app.dependencies.repositories import (
+    CourseRepositoryDep,
+    GroupRepositoryDep,
+    UserRepositoryDep,
+)
 from app.services.course_service import CourseService
 from app.services.group_service import GroupService
 from app.services.user_service import UserService
 
 
-async def get_user_service(db: SessionDep) -> UserService:
-    return UserService(db)
+def get_user_service(repo: UserRepositoryDep) -> UserService:
+    return UserService(repo)
 
 
-async def get_group_service(db: SessionDep) -> GroupService:
-    return GroupService(db)
+def get_group_service(repo: GroupRepositoryDep) -> GroupService:
+    return GroupService(repo)
 
 
-async def get_course_service(db: SessionDep) -> CourseService:
-    return CourseService(db)
+def get_course_service(repo: CourseRepositoryDep) -> CourseService:
+    return CourseService(repo)
 
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]

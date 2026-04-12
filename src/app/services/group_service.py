@@ -1,27 +1,22 @@
 from typing import Optional
 
-from app.dependencies.session import SessionDep
-from app.models.group import Group
+from app.dependencies.repositories import GroupRepositoryDep
 from app.schemas.group import GroupCreate, GroupPublic, GroupUpdate
-from app.utils.repository import Repository
 
 
 class GroupService:
-    def __init__(self, db: SessionDep):
-        self.db = db
-        self.repo = Repository[Group](db, Group)
+    def __init__(self, repo: GroupRepositoryDep):
+        self.repo = repo
 
     async def get_all(
         self,
         skip: int = 0,
         limit: int = 100,
         name: Optional[str] = None,
-        year: Optional[int] = None,
         search: Optional[str] = None,
     ) -> list[GroupPublic]:
         filters = {
             "name": name,
-            "year": year,
         }
         filters = {key: value for key, value in filters.items() if value is not None}
 
@@ -31,14 +26,13 @@ class GroupService:
             filters=filters,
             search=search,
         )
-
         return [GroupPublic.model_validate(group) for group in groups]
 
-    async def get_by_id(self, group_id: int) -> Optional[GroupPublic]:
+    async def get_by_id(self, group_id: int) -> GroupPublic | None:
         group = await self.repo.get(group_id)
         return GroupPublic.model_validate(group) if group else None
 
-    async def get_by_name(self, name: str) -> Optional[GroupPublic]:
+    async def get_by_name(self, name: str) -> GroupPublic | None:
         groups = await self.repo.get_all(filters={"name": name}, limit=1)
         if not groups:
             return None
@@ -52,11 +46,11 @@ class GroupService:
         group = await self.repo.create(**group_data.model_dump())
         return GroupPublic.model_validate(group)
 
-    async def update(self, group_id: int, group_data: GroupUpdate) -> Optional[GroupPublic]:
+    async def update(self, group_id: int, group_data: GroupUpdate) -> GroupPublic | None:
         update_data = group_data.model_dump(exclude_unset=True)
         group = await self.repo.update(group_id, **update_data)
         return GroupPublic.model_validate(group) if group else None
 
     async def delete(self, group_id: int) -> bool:
-        group = await self.repo.delete(group_id)
-        return group is not None
+        deleted = await self.repo.delete(group_id)
+        return deleted is not None

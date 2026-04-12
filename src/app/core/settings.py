@@ -9,8 +9,8 @@ class DatabaseSettings(BaseSettings):
     db_schema: str = "postgresql+asyncpg"
     db_host: str = "localhost"
     db_port: int = 5432
-    db_user: str = "adel"
-    db_password: str = ""
+    db_user: str = "postgres"
+    db_password: str = "postgres"
     db_name: str = "app_db"
 
     model_config = SettingsConfigDict(

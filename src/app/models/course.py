@@ -1,21 +1,29 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
-from app.db.database import Base
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from sqlmodel import Field, Relationship
+
+from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.assignment import Assignment
+    from app.models.attendance import Attendance
+    from app.models.import_source import ImportSource
+    from app.models.stream import Stream
+    from app.models.user import User
 
 
-class Course(Base):
+class Course(BaseModel, table=True):
     __tablename__ = "courses"
 
-    id = Column(Integer, primary_key=True, index=True)
-    stream_id = Column(Integer, ForeignKey("streams.id"), nullable=False)
-    teacher_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    name = Column(String, nullable=False)
-    description = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    name: str = Field(min_length=1, max_length=150)
+    stream_id: int = Field(foreign_key="streams.id")
+    teacher_id: int = Field(foreign_key="users.id")
+    description: str | None = None
 
-    stream = relationship("Stream", back_populates="courses")
-    teacher = relationship("User", foreign_keys=[teacher_id], back_populates="taught_courses")
-    assignments = relationship("Assignment", back_populates="course")
-    attendance_records = relationship("Attendance", back_populates="course")
-    import_sources = relationship("ImportSource", back_populates="course")
+    stream: "Stream | None" = Relationship(back_populates="courses")
+    teacher: "User | None" = Relationship(back_populates="taught_courses")
+    assignments: list["Assignment"] = Relationship(back_populates="course")
+    attendance_records: list["Attendance"] = Relationship(back_populates="course")
+    import_sources: list["ImportSource"] = Relationship(back_populates="course")

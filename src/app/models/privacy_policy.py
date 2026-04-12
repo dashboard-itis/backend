@@ -1,25 +1,22 @@
-from sqlalchemy import Column, Integer, Boolean, String, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
-from app.db.database import Base
-import enum
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from sqlmodel import Field, Relationship
+
+from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.group import Group
 
 
-class RatingMode(str, enum.Enum):
-    FULL = "full"  # Показывать ФИО
-    ANONYMIZED = "anonymized"  # Показывать обезличенно
-
-
-class PrivacyPolicy(Base):
+class PrivacyPolicy(BaseModel, table=True):
     __tablename__ = "privacy_policies"
 
-    id = Column(Integer, primary_key=True, index=True)
-    group_id = Column(Integer, ForeignKey("groups.id"), nullable=False, unique=True)
-    show_rating_to_students = Column(Boolean, nullable=False, default=True)
-    rating_mode = Column(String, nullable=False, default=RatingMode.ANONYMIZED)
-    allow_student_stats = Column(Boolean, nullable=False, default=True)
-    version = Column(Integer, nullable=False, default=1)
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
-                        onupdate=lambda: datetime.now(timezone.utc))
+    group_id: int = Field(foreign_key="groups.id", unique=True)
+    show_rating_to_students: bool = Field(default=True)
+    rating_mode: str = Field(default="anonymized")
+    allow_student_stats: bool = Field(default=True)
+    version: int = Field(default=1, ge=1)
 
-    group = relationship("Group", back_populates="privacy_policy")
+    group: "Group | None" = Relationship(back_populates="privacy_policy")

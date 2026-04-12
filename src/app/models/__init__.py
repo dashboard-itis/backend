@@ -1,23 +1,23 @@
-from app.models.user import User, UserRole
-from app.models.group import Group
-from app.models.stream import Stream
-from app.models.course import Course
 from app.models.assignment import Assignment
+from app.models.attendance import Attendance
+from app.models.course import Course
 from app.models.grade import Grade
-from app.models.submission import Submission, SubmissionStatus
-from app.models.attendance import Attendance, AttendanceStatus
-from app.models.privacy_policy import PrivacyPolicy, RatingMode
-from app.models.import_source import ImportSource, ImportStatus
+from app.models.group import Group
+from app.models.import_source import ImportSource
+from app.models.privacy_policy import PrivacyPolicy
+from app.models.stream import Stream
+from app.models.submission import Submission
+from app.models.user import User
 
 __all__ = [
-    "User", "UserRole",
-    "Group",
-    "Stream",
-    "Course",
     "Assignment",
+    "Attendance",
+    "Course",
     "Grade",
-    "Submission", "SubmissionStatus",
-    "Attendance", "AttendanceStatus",
-    "PrivacyPolicy", "RatingMode",
-    "ImportSource", "ImportStatus",
+    "Group",
+    "ImportSource",
+    "PrivacyPolicy",
+    "Stream",
+    "Submission",
+    "User",
 ]

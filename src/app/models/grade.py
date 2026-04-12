@@ -1,20 +1,23 @@
-from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey, Text
-from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
-from app.db.database import Base
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from sqlmodel import Field, Relationship
+
+from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.assignment import Assignment
+    from app.models.user import User
 
 
-class Grade(Base):
+class Grade(BaseModel, table=True):
     __tablename__ = "grades"
 
-    id = Column(Integer, primary_key=True, index=True)
-    assignment_id = Column(Integer, ForeignKey("assignments.id"), nullable=False)
-    student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    score = Column(Float, nullable=False)
-    comment = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
-                        onupdate=lambda: datetime.now(timezone.utc))
+    assignment_id: int = Field(foreign_key="assignments.id")
+    student_id: int = Field(foreign_key="users.id")
+    score: float = Field(ge=0, le=100)
+    comment: str | None = None
 
-    assignment = relationship("Assignment", back_populates="grades")
-    student = relationship("User", back_populates="grades")
+    assignment: "Assignment | None" = Relationship(back_populates="grades")
+    student: "User | None" = Relationship(back_populates="grades")

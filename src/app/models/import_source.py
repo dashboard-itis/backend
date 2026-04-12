@@ -1,8 +1,15 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
-from app.db.database import Base
+from __future__ import annotations
+
 import enum
+from typing import TYPE_CHECKING
+
+from sqlmodel import Field, Relationship
+
+from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.course import Course
+    from app.models.stream import Stream
 
 
 class ImportStatus(str, enum.Enum):
@@ -12,18 +19,14 @@ class ImportStatus(str, enum.Enum):
     FAILED = "failed"
 
 
-class ImportSource(Base):
+class ImportSource(BaseModel, table=True):
     __tablename__ = "import_sources"
 
-    id = Column(Integer, primary_key=True, index=True)
-    stream_id = Column(Integer, ForeignKey("streams.id"), nullable=False)
-    course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
-    file_name = Column(String, nullable=False)
-    uploaded_by = Column(String, nullable=False)
-    status = Column(String, nullable=False, default=ImportStatus.PENDING)
-    error_message = Column(String, nullable=True)
-    uploaded_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    processed_at = Column(DateTime, nullable=True)
+    stream_id: int = Field(foreign_key="streams.id")
+    course_id: int = Field(foreign_key="courses.id")
+    file_name: str = Field(min_length=1, max_length=255)
+    uploaded_by: str = Field(min_length=1, max_length=255)
+    status: ImportStatus = Field(default=ImportStatus.PENDING)
 
-    stream = relationship("Stream", back_populates="import_sources")
-    course = relationship("Course", back_populates="import_sources")
+    stream: "Stream | None" = Relationship(back_populates="import_sources")
+    course: "Course | None" = Relationship(back_populates="import_sources")

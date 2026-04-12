@@ -1,18 +1,23 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime
-from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
-from app.db.database import Base
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from sqlmodel import Field, Relationship
+
+from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.stream import Stream
+    from app.models.user import User
+    from app.models.privacy_policy import PrivacyPolicy
 
 
-class Group(Base):
+class Group(BaseModel, table=True):
     __tablename__ = "groups"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, nullable=False, index=True)
-    year = Column(Integer, nullable=False)
-    description = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    name: str = Field(index=True, unique=True, min_length=1, max_length=100)
+    description: str | None = None
 
-    users = relationship("User", back_populates="group")
-    streams = relationship("Stream", back_populates="group")
-    privacy_policy = relationship("PrivacyPolicy", back_populates="group", uselist=False)
+    users: list["User"] = Relationship(back_populates="group")
+    streams: list["Stream"] = Relationship(back_populates="group")
+    privacy_policy: "PrivacyPolicy | None" = Relationship(back_populates="group")

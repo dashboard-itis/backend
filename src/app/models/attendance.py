@@ -1,25 +1,32 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
-from sqlalchemy.orm import relationship
-from app.db.database import Base
+from __future__ import annotations
+
 import enum
+from datetime import date
+from typing import TYPE_CHECKING
+
+from sqlmodel import Field, Relationship
+
+from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.course import Course
+    from app.models.user import User
 
 
 class AttendanceStatus(str, enum.Enum):
     PRESENT = "present"
     ABSENT = "absent"
     EXCUSED = "excused"
-    LATE = "late"
 
 
-class Attendance(Base):
+class Attendance(BaseModel, table=True):
     __tablename__ = "attendance"
 
-    id = Column(Integer, primary_key=True, index=True)
-    course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
-    student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    date = Column(Date, nullable=False)
-    status = Column(String, nullable=False, default=AttendanceStatus.PRESENT)
-    comment = Column(String, nullable=True)
+    course_id: int = Field(foreign_key="courses.id")
+    student_id: int = Field(foreign_key="users.id")
+    date: date
+    status: AttendanceStatus = Field(default=AttendanceStatus.PRESENT)
+    comment: str | None = None
 
-    course = relationship("Course", back_populates="attendance_records")
-    student = relationship("User", back_populates="attendance_records")
+    course: "Course | None" = Relationship(back_populates="attendance_records")
+    student: "User | None" = Relationship(back_populates="attendance_records")

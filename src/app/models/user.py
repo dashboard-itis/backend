@@ -1,8 +1,18 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum as SQLEnum
-from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
-from app.db.database import Base
+from __future__ import annotations
+
 import enum
+from typing import TYPE_CHECKING
+
+from sqlmodel import Field, Relationship
+
+from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.attendance import Attendance
+    from app.models.course import Course
+    from app.models.grade import Grade
+    from app.models.group import Group
+    from app.models.submission import Submission
 
 
 class UserRole(str, enum.Enum):
@@ -11,20 +21,18 @@ class UserRole(str, enum.Enum):
     ADMIN = "admin"
 
 
-class User(Base):
+class User(BaseModel, table=True):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, nullable=False, index=True)
-    password_hash = Column(String, nullable=False)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-    role = Column(SQLEnum(UserRole), nullable=False, default=UserRole.STUDENT)
-    group_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    email: str = Field(index=True, unique=True, min_length=5, max_length=255)
+    password_hash: str
+    first_name: str = Field(min_length=1, max_length=50)
+    last_name: str = Field(min_length=1, max_length=50)
+    role: UserRole = Field(default=UserRole.STUDENT)
+    group_id: int | None = Field(default=None, foreign_key="groups.id")
 
-    group = relationship("Group", back_populates="users")
-    grades = relationship("Grade", back_populates="student")
-    submissions = relationship("Submission", back_populates="student")
-    attendance_records = relationship("Attendance", back_populates="student")
-    taught_courses = relationship("Course", foreign_keys="Course.teacher_id", back_populates="teacher")
+    group: "Group | None" = Relationship(back_populates="users")
+    grades: list["Grade"] = Relationship(back_populates="student")
+    submissions: list["Submission"] = Relationship(back_populates="student")
+    attendance_records: list["Attendance"] = Relationship(back_populates="student")
+    taught_courses: list["Course"] = Relationship(back_populates="teacher")

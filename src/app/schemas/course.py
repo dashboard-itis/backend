@@ -1,21 +1,25 @@
-from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
+
+from pydantic import BaseModel, Field
+
 
 class CourseBase(BaseModel):
     name: str = Field(min_length=1, max_length=150)
     stream_id: int
     teacher_id: int
-    description: Optional[str] = None
+    description: str | None = None
+
 
 class CourseCreate(CourseBase):
     pass
 
+
 class CourseUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=1, max_length=150)
-    stream_id: Optional[int] = None
-    teacher_id: Optional[int] = None
-    description: Optional[str] = None
+    name: str | None = Field(default=None, min_length=1, max_length=150)
+    stream_id: int | None = None
+    teacher_id: int | None = None
+    description: str | None = None
+
 
 class CoursePublic(CourseBase):
     id: int

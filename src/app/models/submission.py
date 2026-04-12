@@ -1,29 +1,32 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
-from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
-from app.db.database import Base
+from __future__ import annotations
+
 import enum
+from datetime import datetime
+from typing import TYPE_CHECKING
+
+from sqlmodel import Field, Relationship
+
+from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.assignment import Assignment
+    from app.models.user import User
 
 
 class SubmissionStatus(str, enum.Enum):
     PENDING = "pending"
     SUBMITTED = "submitted"
     GRADED = "graded"
-    LATE = "late"
 
 
-class Submission(Base):
+class Submission(BaseModel, table=True):
     __tablename__ = "submissions"
 
-    id = Column(Integer, primary_key=True, index=True)
-    assignment_id = Column(Integer, ForeignKey("assignments.id"), nullable=False)
-    student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    content = Column(Text, nullable=True)
-    status = Column(String, nullable=False, default=SubmissionStatus.PENDING)
-    submitted_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
-                        onupdate=lambda: datetime.now(timezone.utc))
+    assignment_id: int = Field(foreign_key="assignments.id")
+    student_id: int = Field(foreign_key="users.id")
+    content: str
+    status: SubmissionStatus = Field(default=SubmissionStatus.PENDING)
+    submitted_at: datetime | None = None
 
-    assignment = relationship("Assignment", back_populates="submissions")
-    student = relationship("User", back_populates="submissions")
+    assignment: "Assignment | None" = Relationship(back_populates="submissions")
+    student: "User | None" = Relationship(back_populates="submissions")
