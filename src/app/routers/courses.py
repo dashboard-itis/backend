@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.dependencies.services import CourseServiceDep
-from app.schemas.course import CourseCreate, CoursePublic, CourseUpdate
+from app.models.course import CourseCreate, CoursePublic, CourseUpdate
 from app.schemas.course_filters import CourseFilters
 
 router = APIRouter(prefix="/courses", tags=["Courses"])
@@ -12,14 +12,7 @@ async def get_courses(
     service: CourseServiceDep,
     filters: CourseFilters = Depends(),
 ):
-    return await service.get_all(
-        skip=filters.skip,
-        limit=filters.limit,
-        name=filters.name,
-        stream_id=filters.stream_id,
-        teacher_id=filters.teacher_id,
-        search=filters.search,
-    )
+    return await service.get_all(filters)
 
 
 @router.get("/{course_id}", response_model=CoursePublic)

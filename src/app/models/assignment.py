@@ -3,9 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, SQLModel, Relationship
 
-from app.models.base import BaseModel
+from app.models.base import BaseTableModel, TimestampedModel
 
 if TYPE_CHECKING:
     from app.models.course import Course
@@ -13,9 +13,7 @@ if TYPE_CHECKING:
     from app.models.submission import Submission
 
 
-class Assignment(BaseModel, table=True):
-    __tablename__ = "assignments"
-
+class AssignmentBase(SQLModel):
     course_id: int = Field(foreign_key="courses.id")
     title: str = Field(min_length=1, max_length=200)
     description: str | None = None
@@ -23,6 +21,27 @@ class Assignment(BaseModel, table=True):
     weight: float | None = Field(default=None, ge=0, le=1)
     due_date: datetime | None = None
 
+
+class Assignment(AssignmentBase, BaseTableModel, table=True):
+    __tablename__ = "assignments"
+
     course: "Course | None" = Relationship(back_populates="assignments")
     grades: list["Grade"] = Relationship(back_populates="assignment")
     submissions: list["Submission"] = Relationship(back_populates="assignment")
+
+
+class AssignmentCreate(AssignmentBase):
+    pass
+
+
+class AssignmentUpdate(SQLModel):
+    course_id: int | None = None
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    description: str | None = None
+    max_score: float | None = Field(default=None, ge=0)
+    weight: float | None = Field(default=None, ge=0, le=1)
+    due_date: datetime | None = None
+
+
+class AssignmentPublic(AssignmentBase, TimestampedModel):
+    id: int

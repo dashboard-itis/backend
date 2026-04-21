@@ -1,30 +1,23 @@
-from typing import Optional
-
 from app.dependencies.repositories import GroupRepositoryDep
-from app.schemas.group import GroupCreate, GroupPublic, GroupUpdate
+from app.models.group import GroupCreate, GroupPublic, GroupUpdate
+from app.schemas.group_filters import GroupFilters
 
 
 class GroupService:
     def __init__(self, repo: GroupRepositoryDep):
         self.repo = repo
 
-    async def get_all(
-        self,
-        skip: int = 0,
-        limit: int = 100,
-        name: Optional[str] = None,
-        search: Optional[str] = None,
-    ) -> list[GroupPublic]:
-        filters = {
-            "name": name,
-        }
-        filters = {key: value for key, value in filters.items() if value is not None}
+    async def get_all(self, filters: GroupFilters) -> list[GroupPublic]:
+        db_filters = filters.model_dump(
+            exclude={"skip", "limit", "search"},
+            exclude_none=True,
+        )
 
         groups = await self.repo.get_all(
-            skip=skip,
-            limit=limit,
-            filters=filters,
-            search=search,
+            skip=filters.skip,
+            limit=filters.limit,
+            filters=db_filters,
+            search=filters.search,
         )
         return [GroupPublic.model_validate(group) for group in groups]
 
