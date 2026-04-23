@@ -19,14 +19,6 @@ api_router.include_router(courses_router)
 app.include_router(api_router)
 
 
-@app.get("/")
-async def root():
-    return {
-        "message": settings.app.name,
-        "version": settings.app.version,
-    }
-
-
 @app.get("/health")
 async def healthcheck():
     return {"status": "ok"}

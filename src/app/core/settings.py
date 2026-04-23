@@ -1,21 +1,25 @@
 from functools import lru_cache
 
-from pydantic import BaseModel, computed_field
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import URL
 
 
-class DatabaseSettings(BaseModel):
-    drivername: str
-    host: str
-    port: int
-    user: str
-    password: str
-    name: str
+class DatabaseSettings(BaseSettings):
+    drivername: str = Field(default="postgresql+asyncpg", alias="DB_SCHEMA")
+    host: str = Field(default="localhost", alias="DB_HOST")
+    port: int = Field(default=5432, alias="DB_PORT")
+    user: str = Field(default="postgres", alias="DB_USER")
+    password: str = Field(default="postgres", alias="DB_PASSWORD")
+    name: str = Field(default="app_db", alias="DB_NAME")
 
-    @computed_field
+    model_config = SettingsConfigDict(
+        extra="ignore",
+        populate_by_name=True,
+    )
+
     @property
-    def database_url(self) -> str:
+    def url(self) -> str:
         return URL.create(
             drivername=self.drivername,
             username=self.user,
@@ -26,45 +30,25 @@ class DatabaseSettings(BaseModel):
         ).render_as_string(hide_password=False)
 
 
-class AppSettings(BaseModel):
-    name: str
-    version: str
+class AppSettings(BaseSettings):
+    name: str = Field(default="Dashboard ITIS", alias="APP_NAME")
+    version: str = Field(default="1.0.0", alias="APP_VERSION")
+
+    model_config = SettingsConfigDict(
+        extra="ignore",
+        populate_by_name=True,
+    )
 
 
 class Settings(BaseSettings):
-    db_schema: str = "postgresql+asyncpg"
-    db_host: str = "localhost"
-    db_port: int = 5432
-    db_user: str = "postgres"
-    db_password: str = "postgres"
-    db_name: str = "app_db"
-
-    app_name: str = "Academic Performance API"
-    app_version: str = "1.0.0"
-
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
     )
 
-    @property
-    def db(self) -> DatabaseSettings:
-        return DatabaseSettings(
-            drivername=self.db_schema,
-            host=self.db_host,
-            port=self.db_port,
-            user=self.db_user,
-            password=self.db_password,
-            name=self.db_name,
-        )
-
-    @property
-    def app(self) -> AppSettings:
-        return AppSettings(
-            name=self.app_name,
-            version=self.app_version,
-        )
+    db: DatabaseSettings = DatabaseSettings()
+    app: AppSettings = AppSettings()
 
 
 @lru_cache

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
-from app.models.base import BaseTableModel, TimestampedModel
+from app.models.base import IdModel, TimestampedModel
 
 if TYPE_CHECKING:
     from app.models.privacy_policy import PrivacyPolicy
@@ -17,7 +17,7 @@ class GroupBase(SQLModel):
     description: str | None = None
 
 
-class Group(GroupBase, BaseTableModel, table=True):
+class Group(GroupBase, IdModel, TimestampedModel, table=True):
     __tablename__ = "groups"
 
     users: list["User"] = Relationship(back_populates="group")
@@ -34,5 +34,7 @@ class GroupUpdate(SQLModel):
     description: str | None = None
 
 
-class GroupPublic(GroupBase, TimestampedModel):
+class GroupPublic(GroupBase):
     id: int
+    created_at: datetime
+    updated_at: datetime
