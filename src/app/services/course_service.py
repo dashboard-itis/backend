@@ -8,15 +8,15 @@ class CourseService:
         self.repo = repo
 
     async def get_all(self, filters: CourseFilters) -> list[CoursePublic]:
-        db_filters = filters.model_dump(
-            exclude={"skip", "limit", "search"},
+        filters_data = filters.model_dump(
             exclude_none=True,
+            exclude={"skip", "limit", "search"},
         )
 
         courses = await self.repo.get_all(
             skip=filters.skip,
             limit=filters.limit,
-            filters=db_filters,
+            filters=filters_data,
             search=filters.search,
         )
         return [CoursePublic.model_validate(course) for course in courses]

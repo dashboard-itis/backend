@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from app.models.base import IdModel, TimestampedModel
+from app.models.base import BasePublicModel, BaseTableModel
 
 if TYPE_CHECKING:
     from app.models.assignment import Assignment
@@ -22,7 +21,7 @@ class CourseBase(SQLModel):
     description: str | None = None
 
 
-class Course(CourseBase, IdModel, TimestampedModel, table=True):
+class Course(CourseBase, BaseTableModel, table=True):
     __tablename__ = "courses"
 
     stream: "Stream | None" = Relationship(back_populates="courses")
@@ -43,7 +42,5 @@ class CourseUpdate(SQLModel):
     description: str | None = None
 
 
-class CoursePublic(CourseBase):
-    id: int
-    created_at: datetime
-    updated_at: datetime
+class CoursePublic(CourseBase, BasePublicModel):
+    pass

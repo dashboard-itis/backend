@@ -42,7 +42,7 @@ Backend part project
 
 to start on root project:
 
-uvicorn app.main:app --reload --app-dir src
+uv run uvicorn app.main:app --reload --app-dir src
 
 
 ## Environment Variables

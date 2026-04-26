@@ -10,9 +10,13 @@ def utc_now() -> datetime:
 
 
 class TimestampedModel(SQLModel):
-    created_at: datetime = Field(default_factory=utc_now)
+    created_at: datetime = Field(
+        default_factory=utc_now,
+        nullable=False,
+    )
     updated_at: datetime = Field(
         default_factory=utc_now,
+        nullable=False,
         sa_column_kwargs={"onupdate": utc_now},
     )
 
@@ -22,4 +26,8 @@ class IdModel(SQLModel):
 
 
 class BaseTableModel(IdModel, TimestampedModel):
+    pass
+
+
+class BasePublicModel(IdModel, TimestampedModel):
     pass

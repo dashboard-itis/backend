@@ -1,22 +1,17 @@
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import URL
 
 
-class DatabaseSettings(BaseSettings):
-    drivername: str = Field(default="postgresql+asyncpg", alias="DB_SCHEMA")
-    host: str = Field(default="localhost", alias="DB_HOST")
-    port: int = Field(default=5432, alias="DB_PORT")
-    user: str = Field(default="postgres", alias="DB_USER")
-    password: str = Field(default="postgres", alias="DB_PASSWORD")
-    name: str = Field(default="app_db", alias="DB_NAME")
-
-    model_config = SettingsConfigDict(
-        extra="ignore",
-        populate_by_name=True,
-    )
+class DatabaseSettings(BaseModel):
+    drivername: str = "postgresql+asyncpg"
+    host: str = "localhost"
+    port: int = 5432
+    user: str = "postgres"
+    password: str = "postgres"
+    name: str = "app_db"
 
     @property
     def url(self) -> str:
@@ -30,14 +25,9 @@ class DatabaseSettings(BaseSettings):
         ).render_as_string(hide_password=False)
 
 
-class AppSettings(BaseSettings):
-    name: str = Field(default="Dashboard ITIS", alias="APP_NAME")
-    version: str = Field(default="1.0.0", alias="APP_VERSION")
-
-    model_config = SettingsConfigDict(
-        extra="ignore",
-        populate_by_name=True,
-    )
+class AppSettings(BaseModel):
+    name: str = "Dashboard ITIS"
+    version: str = "1.0.0"
 
 
 class Settings(BaseSettings):
@@ -45,10 +35,11 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
+        env_nested_delimiter="__",
     )
 
-    db: DatabaseSettings = DatabaseSettings()
-    app: AppSettings = AppSettings()
+    db: DatabaseSettings = Field(default_factory=DatabaseSettings)
+    app: AppSettings = Field(default_factory=AppSettings)
 
 
 @lru_cache

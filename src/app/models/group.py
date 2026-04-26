@@ -4,25 +4,24 @@ from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from app.models.base import IdModel, TimestampedModel
+from app.models.base import BasePublicModel, BaseTableModel
 
 if TYPE_CHECKING:
-    from app.models.privacy_policy import PrivacyPolicy
     from app.models.stream import Stream
     from app.models.user import User
 
 
 class GroupBase(SQLModel):
-    name: str = Field(index=True, unique=True, min_length=1, max_length=100)
-    description: str | None = None
+    name: str = Field(min_length=1, max_length=100)
+    year: int | None = None
+    stream_id: int | None = Field(default=None, foreign_key="streams.id")
 
 
-class Group(GroupBase, IdModel, TimestampedModel, table=True):
+class Group(GroupBase, BaseTableModel, table=True):
     __tablename__ = "groups"
 
+    stream: "Stream | None" = Relationship(back_populates="groups")
     users: list["User"] = Relationship(back_populates="group")
-    streams: list["Stream"] = Relationship(back_populates="group")
-    privacy_policy: "PrivacyPolicy | None" = Relationship(back_populates="group")
 
 
 class GroupCreate(GroupBase):
@@ -31,10 +30,14 @@ class GroupCreate(GroupBase):
 
 class GroupUpdate(SQLModel):
     name: str | None = Field(default=None, min_length=1, max_length=100)
-    description: str | None = None
+    year: int | None = None
+    stream_id: int | None = None
 
 
-class GroupPublic(GroupBase):
-    id: int
-    created_at: datetime
-    updated_at: datetime
+class GroupPublic(GroupBase, BasePublicModel):
+    pass
+
+
+GroupCreate.model_rebuild()
+GroupUpdate.model_rebuild()
+GroupPublic.model_rebuild()
