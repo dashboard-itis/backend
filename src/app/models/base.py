@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from datetime import datetime, timezone
 
 from sqlmodel import Field, SQLModel
@@ -9,25 +7,18 @@ def utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-class TimestampedModel(SQLModel):
-    created_at: datetime = Field(
-        default_factory=utc_now,
-        nullable=False,
-    )
-    updated_at: datetime = Field(
-        default_factory=utc_now,
-        nullable=False,
-        sa_column_kwargs={"onupdate": utc_now},
-    )
-
-
 class IdModel(SQLModel):
     id: int | None = Field(default=None, primary_key=True)
+
+
+class TimestampedModel(SQLModel):
+    created_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
 
 
 class BaseTableModel(IdModel, TimestampedModel):
     pass
 
 
-class BasePublicModel(IdModel, TimestampedModel):
+class BaseModel(IdModel, TimestampedModel):
     pass

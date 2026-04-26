@@ -1,11 +1,10 @@
 from functools import lru_cache
 
-from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import URL
 
 
-class DatabaseSettings(BaseModel):
+class DatabaseSettings(BaseSettings):
     drivername: str = "postgresql+asyncpg"
     host: str = "localhost"
     port: int = 5432
@@ -25,7 +24,7 @@ class DatabaseSettings(BaseModel):
         ).render_as_string(hide_password=False)
 
 
-class AppSettings(BaseModel):
+class AppSettings(BaseSettings):
     name: str = "Dashboard ITIS"
     version: str = "1.0.0"
 
@@ -34,12 +33,12 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        extra="ignore",
         env_nested_delimiter="__",
+        extra="ignore",
     )
 
-    db: DatabaseSettings = Field(default_factory=DatabaseSettings)
-    app: AppSettings = Field(default_factory=AppSettings)
+    db: DatabaseSettings
+    app: AppSettings
 
 
 @lru_cache

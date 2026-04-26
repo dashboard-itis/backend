@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 
 from app.dependencies.services import CourseServiceDep
 from app.models.course import CourseCreate, CoursePublic, CourseUpdate
-from app.schemas.course_filters import CourseFiltersDep
+from app.dependencies.filters import CourseFiltersDep
 
 router = APIRouter(prefix="/courses", tags=["Courses"])
 

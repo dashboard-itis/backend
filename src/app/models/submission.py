@@ -1,22 +1,6 @@
-from __future__ import annotations
-
-import enum
-from datetime import datetime
-from typing import TYPE_CHECKING
-
 from sqlmodel import Field, Relationship, SQLModel
 
-from app.models.base import IdModel, TimestampedModel
-
-if TYPE_CHECKING:
-    from app.models.assignment import Assignment
-    from app.models.user import User
-
-
-class SubmissionStatus(str, enum.Enum):
-    PENDING = "pending"
-    SUBMITTED = "submitted"
-    GRADED = "graded"
+from app.models.base import BaseModel
 
 
 class SubmissionBase(SQLModel):
@@ -25,11 +9,8 @@ class SubmissionBase(SQLModel):
     content: str
 
 
-class Submission(SubmissionBase, IdModel, TimestampedModel, table=True):
+class Submission(SubmissionBase, BaseModel, table=True):
     __tablename__ = "submissions"
-
-    status: SubmissionStatus = Field(default=SubmissionStatus.PENDING)
-    submitted_at: datetime | None = None
 
     assignment: "Assignment | None" = Relationship(back_populates="submissions")
     student: "User | None" = Relationship(back_populates="submissions")
@@ -41,13 +22,7 @@ class SubmissionCreate(SubmissionBase):
 
 class SubmissionUpdate(SQLModel):
     content: str | None = None
-    status: SubmissionStatus | None = None
-    submitted_at: datetime | None = None
 
 
-class SubmissionPublic(SubmissionBase):
-    id: int
-    status: SubmissionStatus
-    submitted_at: datetime | None = None
-    created_at: datetime
-    updated_at: datetime
+class SubmissionPublic(SubmissionBase, BaseModel):
+    pass

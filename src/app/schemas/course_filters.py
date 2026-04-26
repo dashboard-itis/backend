@@ -1,14 +1,11 @@
-from typing import Annotated
-
-from fastapi import Depends
-
-from app.schemas.base import CommonListFilters
+from sqlmodel import SQLModel
 
 
-class CourseFilters(CommonListFilters):
+class CourseFilters(SQLModel):
+    skip: int = 0
+    limit: int = 100
     name: str | None = None
     stream_id: int | None = None
     teacher_id: int | None = None
-
-
-CourseFiltersDep = Annotated[CourseFilters, Depends()]
+    search: str | None = None
+    

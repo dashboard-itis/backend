@@ -1,28 +1,19 @@
-from __future__ import annotations
+from sqlmodel import Field, Relationship, SQLModel
 
-from typing import TYPE_CHECKING
-
-from sqlmodel import Field, SQLModel, Relationship
-
-from app.models.base import BaseTableModel, TimestampedModel
-
-if TYPE_CHECKING:
-    from app.models.assignment import Assignment
-    from app.models.user import User
+from app.models.base import BaseModel
 
 
 class GradeBase(SQLModel):
-    assignment_id: int = Field(foreign_key="assignments.id")
+    value: int = Field(ge=0, le=100)
     student_id: int = Field(foreign_key="users.id")
-    score: float = Field(ge=0, le=100)
-    comment: str | None = None
+    course_id: int = Field(foreign_key="courses.id")
 
 
-class Grade(GradeBase, BaseTableModel, table=True):
+class Grade(GradeBase, BaseModel, table=True):
     __tablename__ = "grades"
 
-    assignment: "Assignment | None" = Relationship(back_populates="grades")
     student: "User | None" = Relationship(back_populates="grades")
+    course: "Course | None" = Relationship(back_populates="grades")
 
 
 class GradeCreate(GradeBase):
@@ -30,11 +21,10 @@ class GradeCreate(GradeBase):
 
 
 class GradeUpdate(SQLModel):
-    assignment_id: int | None = None
+    value: int | None = Field(default=None, ge=0, le=100)
     student_id: int | None = None
-    score: float | None = Field(default=None, ge=0, le=100)
-    comment: str | None = None
+    course_id: int | None = None
 
 
-class GradePublic(GradeBase, TimestampedModel):
-    id: int
+class GradePublic(GradeBase, BaseModel):
+    pass
