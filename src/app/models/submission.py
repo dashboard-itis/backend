@@ -1,6 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.assignment import Assignment
+    from app.models.user import User
 
 
 class SubmissionBase(SQLModel):

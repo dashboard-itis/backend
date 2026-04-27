@@ -4,9 +4,9 @@ import enum
 from datetime import date as dt_date
 from typing import TYPE_CHECKING
 
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
-from app.models.base import BaseTableModel, TimestampedModel
+from app.models.base import BaseModel
 
 if TYPE_CHECKING:
     from app.models.course import Course
@@ -27,7 +27,7 @@ class AttendanceBase(SQLModel):
     comment: str | None = None
 
 
-class Attendance(AttendanceBase, BaseTableModel, table=True):
+class Attendance(AttendanceBase, BaseModel, table=True):
     __tablename__ = "attendance"
 
     course: "Course | None" = Relationship(back_populates="attendance_records")
@@ -46,5 +46,5 @@ class AttendanceUpdate(SQLModel):
     comment: str | None = None
 
 
-class AttendancePublic(AttendanceBase, TimestampedModel):
-    id: int
+class AttendancePublic(AttendanceBase, BaseModel):
+    pass

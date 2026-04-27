@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
-from app.models.base import BaseTableModel, TimestampedModel
+from app.models.base import BaseModel
 
 if TYPE_CHECKING:
     from app.models.course import Course
@@ -18,7 +18,7 @@ class StreamBase(SQLModel):
     year: int = Field(ge=2000, le=2100)
 
 
-class Stream(StreamBase, BaseTableModel, table=True):
+class Stream(StreamBase, BaseModel, table=True):
     __tablename__ = "streams"
 
     group: "Group | None" = Relationship(back_populates="streams")
@@ -36,5 +36,5 @@ class StreamUpdate(SQLModel):
     year: int | None = Field(default=None, ge=2000, le=2100)
 
 
-class StreamPublic(StreamBase, TimestampedModel):
-    id: int
+class StreamPublic(StreamBase, BaseModel):
+    pass

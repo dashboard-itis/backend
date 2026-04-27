@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
-from app.models.base import BaseTableModel, TimestampedModel
+from app.models.base import BaseModel
 
 if TYPE_CHECKING:
     from app.models.group import Group
@@ -18,7 +18,7 @@ class PrivacyPolicyBase(SQLModel):
     version: int = Field(default=1, ge=1)
 
 
-class PrivacyPolicy(PrivacyPolicyBase, BaseTableModel, table=True):
+class PrivacyPolicy(PrivacyPolicyBase, BaseModel, table=True):
     __tablename__ = "privacy_policies"
 
     group: "Group | None" = Relationship(back_populates="privacy_policy")
@@ -35,5 +35,5 @@ class PrivacyPolicyUpdate(SQLModel):
     version: int | None = Field(default=None, ge=1)
 
 
-class PrivacyPolicyPublic(PrivacyPolicyBase, TimestampedModel):
-    id: int
+class PrivacyPolicyPublic(PrivacyPolicyBase, BaseModel):
+    pass

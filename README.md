@@ -67,4 +67,7 @@ Create `.env` file in project root.
 Create migration:
 
 ```bash
-alembic revision --autogenerate -m "message"
+uv run alembic revision --autogenerate -m "message"
+
+uv run alembic upgrade head 
+```

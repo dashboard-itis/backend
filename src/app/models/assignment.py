@@ -3,9 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
-from app.models.base import BaseTableModel, TimestampedModel
+from app.models.base import BaseModel
 
 if TYPE_CHECKING:
     from app.models.course import Course
@@ -22,7 +22,7 @@ class AssignmentBase(SQLModel):
     due_date: datetime | None = None
 
 
-class Assignment(AssignmentBase, BaseTableModel, table=True):
+class Assignment(AssignmentBase, BaseModel, table=True):
     __tablename__ = "assignments"
 
     course: "Course | None" = Relationship(back_populates="assignments")
@@ -43,5 +43,5 @@ class AssignmentUpdate(SQLModel):
     due_date: datetime | None = None
 
 
-class AssignmentPublic(AssignmentBase, TimestampedModel):
-    id: int
+class AssignmentPublic(AssignmentBase, BaseModel):
+    pass

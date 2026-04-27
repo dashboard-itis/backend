@@ -3,9 +3,9 @@ from typing import Generic, TypeVar
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.models.base import BaseTableModel
+from app.models.base import BaseModel
 
-T = TypeVar("T", bound=BaseTableModel)
+T = TypeVar("T", bound=BaseModel)
 
 
 class Repository(Generic[T]):

@@ -1,9 +1,19 @@
+from __future__ import annotations
+
 from enum import StrEnum
+from typing import TYPE_CHECKING
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.attendance import Attendance
+    from app.models.course import Course
+    from app.models.grade import Grade
+    from app.models.group import Group
+    from app.models.submission import Submission
 
 
 class UserRole(StrEnum):
@@ -44,4 +54,4 @@ class UserUpdate(SQLModel):
 
 
 class UserPublic(UserBase, BaseModel):
-    role: UserRole
+    pass
