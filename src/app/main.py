@@ -1,40 +1,24 @@
-from contextlib import asynccontextmanager
+from fastapi import APIRouter, FastAPI
 
-from fastapi import FastAPI
-from pydantic import BaseModel
+from app.core.settings import settings
+from app.routers.courses import router as courses_router
+from app.routers.groups import router as groups_router
+from app.routers.users import router as users_router
 
-from app.database import create_db_and_tables
+app = FastAPI(
+    title=settings.app.name,
+    version=settings.app.version,
+)
 
+api_router = APIRouter(prefix="/api/v1")
 
+api_router.include_router(users_router)
+api_router.include_router(groups_router)
+api_router.include_router(courses_router)
 
-@asynccontextmanager
-async def lifespan(_app: FastAPI):
-    create_db_and_tables()
-    yield
-
-
-app = FastAPI(lifespan=lifespan)
-
-
-
-
-
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: bool | None = None
+app.include_router(api_router)
 
 
-@app.get('/')
-def read_root():
-    return {'Hello': 'World'}
-
-
-@app.get('/items/{item_id}')
-def read_item(item_id: int, q: str | None = None):
-    return {'item_id': item_id, 'q': q}
-
-
-@app.put('/items/{item_id}')
-def update_item(item_id: int, item: Item):
-    return {'item_name': item.name, 'item_id': item_id}
+@app.get("/health")
+async def healthcheck():
+    return {"status": "ok"}
