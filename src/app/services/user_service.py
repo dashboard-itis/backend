@@ -1,12 +1,17 @@
-from app.dependencies.repositories import UserRepositoryDep
+from app.dependencies.repositories import RoleRepositoryDep, UserRepositoryDep
 from app.models.user import UserCreate, UserPublic, UserUpdate
 from app.schemas.user_filters import UserFilters
 from app.utils.security import hash_password
 
 
 class UserService:
-    def __init__(self, repo: UserRepositoryDep):
-        self.repo = repo
+    def __init__(
+        self,
+        user_repo: UserRepositoryDep,
+        role_repo: RoleRepositoryDep,
+    ):
+        self.user_repo = user_repo
+        self.role_repo = role_repo
 
     async def get_all(self, filters: UserFilters) -> list[UserPublic]:
         db_filters = filters.model_dump(
@@ -14,7 +19,7 @@ class UserService:
             exclude_none=True,
         )
 
-        users = await self.repo.get_all(
+        users = await self.user_repo.fetch(
             skip=filters.skip,
             limit=filters.limit,
             filters=db_filters,
@@ -23,28 +28,23 @@ class UserService:
         return [UserPublic.model_validate(user) for user in users]
 
     async def get_by_id(self, user_id: int) -> UserPublic | None:
-        user = await self.repo.get(user_id)
+        user = await self.user_repo.get(user_id)
         return UserPublic.model_validate(user) if user else None
 
     async def get_by_email(self, email: str) -> UserPublic | None:
-        users = await self.repo.get_all(filters={"email": email}, limit=1)
-        if not users:
-            return None
-        return UserPublic.model_validate(users[0])
+        user = await self.user_repo.get_by_email(email)
+        return UserPublic.model_validate(user) if user else None
 
     async def create(self, user_data: UserCreate) -> UserPublic:
         existing = await self.get_by_email(user_data.email)
-        if existing:
+
+        if existing is not None:
             raise ValueError("Email already registered")
 
-        user = await self.repo.create(
-            email=user_data.email,
-            password_hash=hash_password(user_data.password),
-            first_name=user_data.first_name,
-            last_name=user_data.last_name,
-            role=user_data.role.value,
-            group_id=user_data.group_id,
-        )
+        create_data = user_data.model_dump(exclude={"password"})
+        create_data["password_hash"] = hash_password(user_data.password)
+
+        user = await self.user_repo.create(**create_data)
         return UserPublic.model_validate(user)
 
     async def update(self, user_id: int, user_data: UserUpdate) -> UserPublic | None:
@@ -53,12 +53,31 @@ class UserService:
         if "password" in update_data:
             update_data["password_hash"] = hash_password(update_data.pop("password"))
 
-        if "role" in update_data and update_data["role"] is not None:
-            update_data["role"] = update_data["role"].value
-
-        user = await self.repo.update(user_id, **update_data)
+        user = await self.user_repo.update(user_id, **update_data)
         return UserPublic.model_validate(user) if user else None
 
+    async def update_roles(
+        self,
+        user_id: int,
+        role_names: list[str],
+    ) -> UserPublic | None:
+        user = await self.user_repo.get_with_roles(user_id)
+
+        if user is None:
+            return None
+
+        roles = await self.role_repo.get_existing_by_names(role_names)
+
+        if len(roles) != len(set(role_names)):
+            existing_role_names = {role.name for role in roles}
+            missing_roles = set(role_names) - existing_role_names
+            raise ValueError(f"Roles not found: {', '.join(sorted(missing_roles))}")
+
+        user.roles = roles
+        updated_user = await self.user_repo.save(user)
+
+        return UserPublic.model_validate(updated_user)
+
     async def delete(self, user_id: int) -> bool:
-        deleted = await self.repo.delete(user_id)
-        return deleted is not None
+        user = await self.user_repo.delete(user_id)
+        return user is not None

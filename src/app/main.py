@@ -1,24 +1,32 @@
-from fastapi import APIRouter, FastAPI
+from contextlib import asynccontextmanager
 
-from app.core.settings import settings
-from app.routers.courses import router as courses_router
-from app.routers.groups import router as groups_router
-from app.routers.users import router as users_router
+from fastapi import FastAPI
 
-app = FastAPI(
-    title=settings.app.name,
-    version=settings.app.version,
-)
+from app.bootstrap.rbac import RBACBootstrapper
+from app.db.database import AsyncSessionLocal
+from app.repositories.permission_repository import PermissionRepository
+from app.repositories.role_repository import RoleRepository
+from app.repositories.user_repository import UserRepository
+from app.routers import api_router
 
-api_router = APIRouter(prefix="/api/v1")
 
-api_router.include_router(users_router)
-api_router.include_router(groups_router)
-api_router.include_router(courses_router)
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    async with AsyncSessionLocal() as session:
+        bootstrapper = RBACBootstrapper(
+            user_repo=UserRepository(session),
+            role_repo=RoleRepository(session),
+            permission_repo=PermissionRepository(session),
+        )
+        await bootstrapper.bootstrap()
+    yield
 
-app.include_router(api_router)
+
+app = FastAPI(lifespan=lifespan)
+
+app.include_router(api_router, prefix="/api/v1")
 
 
 @app.get("/health")
-async def healthcheck():
+async def health():
     return {"status": "ok"}

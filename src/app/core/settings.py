@@ -1,3 +1,4 @@
+from datetime import timedelta
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -29,6 +30,27 @@ class AppSettings(BaseSettings):
     version: str = "1.0.0"
 
 
+class AuthSettings(BaseSettings):
+    secret_key: str
+    algorithm: str = "HS256"
+    access_token_lifetime: timedelta = timedelta(minutes=15)
+    refresh_token_lifetime: timedelta = timedelta(days=30)
+
+
+class RBACSettings(BaseSettings):
+    admin_role: str = "admin"
+    public_role: str = "public"
+    student_role: str = "student"
+    curator_role: str = "curator"
+
+
+class AdminSettings(BaseSettings):
+    email: str = "admin@example.com"
+    password: str = "admin12345"
+    first_name: str = "Admin"
+    last_name: str = "User"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -39,6 +61,9 @@ class Settings(BaseSettings):
 
     db: DatabaseSettings
     app: AppSettings
+    auth: AuthSettings
+    rbac: RBACSettings
+    admin: AdminSettings
 
 
 @lru_cache

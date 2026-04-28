@@ -2,25 +2,45 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.dependencies.session import SessionDep
-from app.models.course import Course
-from app.models.group import Group
-from app.models.user import User
-from app.utils.repository import Repository
+from app.repositories.course_repository import CourseRepository
+from app.repositories.group_repository import GroupRepository
+from app.repositories.permission_repository import PermissionRepository
+from app.repositories.refresh_session_repository import RefreshSessionRepository
+from app.repositories.role_permission_repository import RolePermissionRepository
+from app.repositories.role_repository import RoleRepository
+from app.repositories.user_repository import UserRepository
 
+UserRepositoryDep = Annotated[
+    UserRepository,
+    Depends(UserRepository),
+]
 
-def get_user_repository(session: SessionDep) -> Repository[User]:
-    return Repository[User](session, User)
+GroupRepositoryDep = Annotated[
+    GroupRepository,
+    Depends(GroupRepository),
+]
 
+CourseRepositoryDep = Annotated[
+    CourseRepository,
+    Depends(CourseRepository),
+]
 
-def get_group_repository(session: SessionDep) -> Repository[Group]:
-    return Repository[Group](session, Group)
+RoleRepositoryDep = Annotated[
+    RoleRepository,
+    Depends(RoleRepository),
+]
 
+PermissionRepositoryDep = Annotated[
+    PermissionRepository,
+    Depends(PermissionRepository),
+]
 
-def get_course_repository(session: SessionDep) -> Repository[Course]:
-    return Repository[Course](session, Course)
+RolePermissionRepositoryDep = Annotated[
+    RolePermissionRepository,
+    Depends(RolePermissionRepository),
+]
 
-
-UserRepositoryDep = Annotated[Repository[User], Depends(get_user_repository)]
-GroupRepositoryDep = Annotated[Repository[Group], Depends(get_group_repository)]
-CourseRepositoryDep = Annotated[Repository[Course], Depends(get_course_repository)]
+RefreshSessionRepositoryDep = Annotated[
+    RefreshSessionRepository,
+    Depends(RefreshSessionRepository),
+]

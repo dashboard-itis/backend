@@ -1,13 +1,22 @@
-from fastapi import APIRouter, HTTPException, status
+from typing import Annotated
 
+from fastapi import APIRouter, Depends, HTTPException, Security, status
+
+from app.dependencies.auth import get_current_user
 from app.dependencies.services import CourseServiceDep
 from app.models.course import CourseCreate, CoursePublic, CourseUpdate
-from app.dependencies.filters import CourseFiltersDep
+from app.schemas.course_filters import CourseFilters
 
 router = APIRouter(prefix="/courses", tags=["Courses"])
 
+CourseFiltersDep = Annotated[CourseFilters, Depends()]
 
-@router.get("/", response_model=list[CoursePublic])
+
+@router.get(
+    "/",
+    response_model=list[CoursePublic],
+    dependencies=[Security(get_current_user, scopes=["courses:list"])],
+)
 async def get_courses(
     service: CourseServiceDep,
     filters: CourseFiltersDep,
@@ -15,36 +24,65 @@ async def get_courses(
     return await service.get_all(filters)
 
 
-@router.get("/{course_id}", response_model=CoursePublic)
+@router.get(
+    "/{course_id}",
+    response_model=CoursePublic,
+    dependencies=[Security(get_current_user, scopes=["courses:read"])],
+)
 async def get_course(course_id: int, service: CourseServiceDep):
     course = await service.get_by_id(course_id)
-    if not course:
+
+    if course is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Course not found",
         )
+
     return course
 
 
-@router.post("/", response_model=CoursePublic, status_code=status.HTTP_201_CREATED)
-async def create_course(course_data: CourseCreate, service: CourseServiceDep):
+@router.post(
+    "/",
+    response_model=CoursePublic,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Security(get_current_user, scopes=["courses:create"])],
+)
+async def create_course(
+    course_data: CourseCreate,
+    service: CourseServiceDep,
+):
     return await service.create(course_data)
 
 
-@router.put("/{course_id}", response_model=CoursePublic)
-async def update_course(course_id: int, course_data: CourseUpdate, service: CourseServiceDep):
+@router.put(
+    "/{course_id}",
+    response_model=CoursePublic,
+    dependencies=[Security(get_current_user, scopes=["courses:update"])],
+)
+async def update_course(
+    course_id: int,
+    course_data: CourseUpdate,
+    service: CourseServiceDep,
+):
     course = await service.update(course_id, course_data)
-    if not course:
+
+    if course is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Course not found",
         )
+
     return course
 
 
-@router.delete("/{course_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{course_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Security(get_current_user, scopes=["courses:delete"])],
+)
 async def delete_course(course_id: int, service: CourseServiceDep):
     deleted = await service.delete(course_id)
+
     if not deleted:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

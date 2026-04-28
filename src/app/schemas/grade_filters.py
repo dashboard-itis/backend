@@ -1,5 +1,7 @@
 from typing import Optional
+
 from app.schemas.base import CommonListFilters
+
 
 class GradeFilters(CommonListFilters):
     student_id: Optional[int] = None

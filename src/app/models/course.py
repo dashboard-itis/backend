@@ -1,6 +1,14 @@
+from typing import TYPE_CHECKING, Optional
+
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.assignment import Assignment
+    from app.models.attendance import Attendance
+    from app.models.stream import Stream
+    from app.models.user import User
 
 
 class CourseBase(SQLModel):
@@ -13,10 +21,10 @@ class CourseBase(SQLModel):
 class Course(CourseBase, BaseModel, table=True):
     __tablename__ = "courses"
 
-    stream: "Stream | None" = Relationship(back_populates="courses")
-    teacher: "User | None" = Relationship(back_populates="courses")
+    stream: Optional["Stream"] = Relationship(back_populates="courses")
+    teacher: Optional["User"] = Relationship(back_populates="courses")
     assignments: list["Assignment"] = Relationship(back_populates="course")
-    grades: list["Grade"] = Relationship(back_populates="course")
+    attendance_records: list["Attendance"] = Relationship(back_populates="course")
 
 
 class CourseCreate(CourseBase):
