@@ -1,78 +1,67 @@
-from typing import TypeVar, Generic, Type, Optional, List, Dict, Any
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from sqlalchemy.orm import DeclarativeMeta
+from typing import Generic, TypeVar
 
-T = TypeVar("T", bound=DeclarativeMeta)
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.models.base import BaseModel
+
+T = TypeVar("T", bound=BaseModel)
 
 
 class Repository(Generic[T]):
-    def __init__(self, db: AsyncSession, model: Type[T]):
-        self.db = db
+    def __init__(self, session: AsyncSession, model: type[T]):
+        self.session = session
         self.model = model
 
-    async def get(self, obj_id: int) -> Optional[T]:
-        result = await self.db.execute(
-            select(self.model).where(self.model.id == obj_id)
-        )
-        return result.scalars().first()
+    async def get(self, object_id: int) -> T | None:
+        return await self.session.get(self.model, object_id)
 
     async def get_all(
         self,
         skip: int = 0,
         limit: int = 100,
-        filters: Optional[Dict[str, Any]] = None,
-        search: Optional[str] = None,
-        search_fields: Optional[List[str]] = None
-    ) -> List[T]:
-
+        filters: dict | None = None,
+        search: str | None = None,
+    ) -> list[T]:
         query = select(self.model)
 
         if filters:
-            for field, value in filters.items():
-                if hasattr(self.model, field):
-                    query = query.where(getattr(self.model, field) == value)
+            for field_name, value in filters.items():
+                query = query.where(getattr(self.model, field_name) == value)
 
-        if search and search_fields:
-            search_conditions = []
-            for field in search_fields:
-                if hasattr(self.model, field):
-                    column = getattr(self.model, field)
-                    search_conditions.append(column.ilike(f"%{search}%"))
-
-            if search_conditions:
-                query = query.where(func.or_(*search_conditions))
+        if search and hasattr(self.model, "name"):
+            query = query.where(getattr(self.model, "name").ilike(f"%{search}%"))
 
         query = query.offset(skip).limit(limit)
 
-        result = await self.db.execute(query)
-        return result.scalars().all()
+        result = await self.session.exec(query)
+        return list(result.all())
 
-    async def create(self, **kwargs) -> T:
-        obj = self.model(**kwargs)
-        self.db.add(obj)
-        await self.db.commit()
-        await self.db.refresh(obj)
+    async def create(self, **data) -> T:
+        obj = self.model(**data)
+        self.session.add(obj)
+        await self.session.commit()
+        await self.session.refresh(obj)
         return obj
 
-    async def update(self, obj_id: int, **kwargs) -> Optional[T]:
-        obj = await self.get(obj_id)
+    async def update(self, object_id: int, **data) -> T | None:
+        obj = await self.get(object_id)
         if not obj:
             return None
 
-        for key, value in kwargs.items():
-            if hasattr(obj, key):
-                setattr(obj, key, value)
+        for field_name, value in data.items():
+            setattr(obj, field_name, value)
 
-        await self.db.commit()
-        await self.db.refresh(obj)
+        self.session.add(obj)
+        await self.session.commit()
+        await self.session.refresh(obj)
         return obj
 
-    async def delete(self, obj_id: int) -> Optional[T]:
-        obj = await self.get(obj_id)
+    async def delete(self, object_id: int) -> T | None:
+        obj = await self.get(object_id)
         if not obj:
             return None
 
-        await self.db.delete(obj)
-        await self.db.commit()
+        await self.session.delete(obj)
+        await self.session.commit()
         return obj

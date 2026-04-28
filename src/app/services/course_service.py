@@ -1,34 +1,23 @@
-from typing import Optional
-
 from app.dependencies.repositories import CourseRepositoryDep
-from app.schemas.course import CourseCreate, CoursePublic, CourseUpdate
+from app.models.course import CourseCreate, CoursePublic, CourseUpdate
+from app.schemas.course_filters import CourseFilters
 
 
 class CourseService:
     def __init__(self, repo: CourseRepositoryDep):
         self.repo = repo
 
-    async def get_all(
-        self,
-        skip: int = 0,
-        limit: int = 100,
-        name: Optional[str] = None,
-        stream_id: Optional[int] = None,
-        teacher_id: Optional[int] = None,
-        search: Optional[str] = None,
-    ) -> list[CoursePublic]:
-        filters = {
-            "name": name,
-            "stream_id": stream_id,
-            "teacher_id": teacher_id,
-        }
-        filters = {key: value for key, value in filters.items() if value is not None}
+    async def get_all(self, filters: CourseFilters) -> list[CoursePublic]:
+        filters_data = filters.model_dump(
+            exclude_none=True,
+            exclude={"skip", "limit", "search"},
+        )
 
         courses = await self.repo.get_all(
-            skip=skip,
-            limit=limit,
-            filters=filters,
-            search=search,
+            skip=filters.skip,
+            limit=filters.limit,
+            filters=filters_data,
+            search=filters.search,
         )
         return [CoursePublic.model_validate(course) for course in courses]
 

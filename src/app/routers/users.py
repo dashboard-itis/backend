@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.dependencies.services import UserServiceDep
-from app.schemas.user import UserCreate, UserPublic, UserUpdate
+from app.models.user import UserCreate, UserPublic, UserUpdate
 from app.schemas.user_filters import UserFilters
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -12,14 +12,7 @@ async def get_users(
     service: UserServiceDep,
     filters: UserFilters = Depends(),
 ):
-    return await service.get_all(
-        skip=filters.skip,
-        limit=filters.limit,
-        email=filters.email,
-        role=filters.role,
-        group_id=filters.group_id,
-        search=filters.search,
-    )
+    return await service.get_all(filters)
 
 
 @router.get("/{user_id}", response_model=UserPublic)

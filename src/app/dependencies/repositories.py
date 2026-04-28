@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.db.database import SessionDep
+from app.dependencies.session import SessionDep
 from app.models.course import Course
 from app.models.group import Group
 from app.models.user import User

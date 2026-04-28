@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.dependencies.services import GroupServiceDep
-from app.schemas.group import GroupCreate, GroupPublic, GroupUpdate
+from app.models.group import GroupCreate, GroupPublic, GroupUpdate
 from app.schemas.group_filters import GroupFilters
 
 router = APIRouter(prefix="/groups", tags=["Groups"])
@@ -12,12 +12,7 @@ async def get_groups(
     service: GroupServiceDep,
     filters: GroupFilters = Depends(),
 ):
-    return await service.get_all(
-        skip=filters.skip,
-        limit=filters.limit,
-        name=filters.name,
-        search=filters.search,
-    )
+    return await service.get_all(filters)
 
 
 @router.get("/{group_id}", response_model=GroupPublic)

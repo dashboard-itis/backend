@@ -1,4 +1,10 @@
-from app.schemas.base import CommonListFilters
+from sqlmodel import SQLModel
+
+
+class CommonListFilters(SQLModel):
+    skip: int = 0
+    limit: int = 100
+    search: str | None = None
 
 
 class CourseFilters(CommonListFilters):

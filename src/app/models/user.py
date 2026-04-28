@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import enum
+from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from sqlmodel import Field, Relationship
+from pydantic import EmailStr
+from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.base import BaseModel
 
@@ -15,24 +16,42 @@ if TYPE_CHECKING:
     from app.models.submission import Submission
 
 
-class UserRole(str, enum.Enum):
+class UserRole(StrEnum):
     STUDENT = "student"
-    CURATOR = "curator"
+    TEACHER = "teacher"
     ADMIN = "admin"
 
 
-class User(BaseModel, table=True):
-    __tablename__ = "users"
-
-    email: str = Field(index=True, unique=True, min_length=5, max_length=255)
-    password_hash: str
+class UserBase(SQLModel):
+    email: EmailStr = Field(max_length=255)
     first_name: str = Field(min_length=1, max_length=50)
     last_name: str = Field(min_length=1, max_length=50)
-    role: UserRole = Field(default=UserRole.STUDENT)
     group_id: int | None = Field(default=None, foreign_key="groups.id")
 
+
+class User(UserBase, BaseModel, table=True):
+    __tablename__ = "users"
+
+    password_hash: str
+    role: UserRole = Field(default=UserRole.STUDENT)
+
     group: "Group | None" = Relationship(back_populates="users")
+    courses: list["Course"] = Relationship(back_populates="teacher")
     grades: list["Grade"] = Relationship(back_populates="student")
     submissions: list["Submission"] = Relationship(back_populates="student")
     attendance_records: list["Attendance"] = Relationship(back_populates="student")
-    taught_courses: list["Course"] = Relationship(back_populates="teacher")
+
+
+class UserCreate(UserBase):
+    password: str = Field(min_length=8)
+
+
+class UserUpdate(SQLModel):
+    email: EmailStr | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    group_id: int | None = None
+
+
+class UserPublic(UserBase, BaseModel):
+    pass

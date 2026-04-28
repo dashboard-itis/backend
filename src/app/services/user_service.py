@@ -1,47 +1,32 @@
-from typing import Optional
-
-from app.dependencies.session import SessionDep
-from app.models.user import User
-from app.schemas.user import UserCreate, UserPublic, UserUpdate
-from app.utils.repository import Repository
+from app.dependencies.repositories import UserRepositoryDep
+from app.models.user import UserCreate, UserPublic, UserUpdate
+from app.schemas.user_filters import UserFilters
 from app.utils.security import hash_password
 
 
 class UserService:
-    def __init__(self, db: SessionDep):
-        self.db = db
-        self.repo = Repository[User](db, User)
+    def __init__(self, repo: UserRepositoryDep):
+        self.repo = repo
 
-    async def get_all(
-        self,
-        skip: int = 0,
-        limit: int = 100,
-        email: Optional[str] = None,
-        role: Optional[str] = None,
-        group_id: Optional[int] = None,
-        search: Optional[str] = None,
-    ) -> list[UserPublic]:
-        filters = {
-            "email": email,
-            "role": role,
-            "group_id": group_id,
-        }
-        filters = {key: value for key, value in filters.items() if value is not None}
-
-        users = await self.repo.get_all(
-            skip=skip,
-            limit=limit,
-            filters=filters,
-            search=search,
+    async def get_all(self, filters: UserFilters) -> list[UserPublic]:
+        db_filters = filters.model_dump(
+            exclude={"skip", "limit", "search"},
+            exclude_none=True,
         )
 
+        users = await self.repo.get_all(
+            skip=filters.skip,
+            limit=filters.limit,
+            filters=db_filters,
+            search=filters.search,
+        )
         return [UserPublic.model_validate(user) for user in users]
 
-    async def get_by_id(self, user_id: int) -> Optional[UserPublic]:
+    async def get_by_id(self, user_id: int) -> UserPublic | None:
         user = await self.repo.get(user_id)
         return UserPublic.model_validate(user) if user else None
 
-    async def get_by_email(self, email: str) -> Optional[UserPublic]:
+    async def get_by_email(self, email: str) -> UserPublic | None:
         users = await self.repo.get_all(filters={"email": email}, limit=1)
         if not users:
             return None
@@ -60,10 +45,9 @@ class UserService:
             role=user_data.role.value,
             group_id=user_data.group_id,
         )
-
         return UserPublic.model_validate(user)
 
-    async def update(self, user_id: int, user_data: UserUpdate) -> Optional[UserPublic]:
+    async def update(self, user_id: int, user_data: UserUpdate) -> UserPublic | None:
         update_data = user_data.model_dump(exclude_unset=True)
 
         if "password" in update_data:
@@ -76,5 +60,5 @@ class UserService:
         return UserPublic.model_validate(user) if user else None
 
     async def delete(self, user_id: int) -> bool:
-        user = await self.repo.delete(user_id)
-        return user is not None
+        deleted = await self.repo.delete(user_id)
+        return deleted is not None

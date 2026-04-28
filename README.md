@@ -42,4 +42,32 @@ Backend part project
 
 to start on root project:
 
-uvicorn app.main:app --reload --app-dir src
+uv run uvicorn app.main:app --reload --app-dir src
+
+
+## Environment Variables
+
+Create `.env` file in project root.
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| DB_SCHEMA | Database driver | postgresql+asyncpg |
+| DB_HOST | Database host | localhost |
+| DB_PORT | Database port | 5432 |
+| DB_USER | Database user | postgres |
+| DB_PASSWORD | Database password | postgres |
+| DB_NAME | Database name | app_db |
+| APP_NAME | Application name | Academic Performance API |
+| APP_VERSION | Application version | 1.0.0 |
+
+---
+
+## Alembic Migrations
+
+Create migration:
+
+```bash
+uv run alembic revision --autogenerate -m "message"
+
+uv run alembic upgrade head 
+```
