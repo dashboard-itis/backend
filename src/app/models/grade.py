@@ -1,27 +1,26 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.base import BaseModel
 
 if TYPE_CHECKING:
-    from app.models.course import Course
+    from app.models.assignment import Assignment
     from app.models.user import User
 
 
 class GradeBase(SQLModel):
-    value: int = Field(ge=0, le=100)
     student_id: int = Field(foreign_key="users.id")
-    course_id: int = Field(foreign_key="courses.id")
+    assignment_id: int = Field(foreign_key="assignments.id")
+    score: float = Field(ge=0, le=100)
+    comment: str | None = None
 
 
 class Grade(GradeBase, BaseModel, table=True):
     __tablename__ = "grades"
 
-    student: "User | None" = Relationship(back_populates="grades")
-    course: "Course | None" = Relationship(back_populates="grades")
+    student: Optional["User"] = Relationship(back_populates="grades")
+    assignment: Optional["Assignment"] = Relationship(back_populates="grades")
 
 
 class GradeCreate(GradeBase):
@@ -29,9 +28,10 @@ class GradeCreate(GradeBase):
 
 
 class GradeUpdate(SQLModel):
-    value: int | None = Field(default=None, ge=0, le=100)
     student_id: int | None = None
-    course_id: int | None = None
+    assignment_id: int | None = None
+    score: float | None = Field(default=None, ge=0, le=100)
+    comment: str | None = None
 
 
 class GradePublic(GradeBase, BaseModel):

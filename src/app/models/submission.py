@@ -1,6 +1,4 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -20,8 +18,8 @@ class SubmissionBase(SQLModel):
 class Submission(SubmissionBase, BaseModel, table=True):
     __tablename__ = "submissions"
 
-    assignment: "Assignment | None" = Relationship(back_populates="submissions")
-    student: "User | None" = Relationship(back_populates="submissions")
+    assignment: Optional["Assignment"] = Relationship(back_populates="submissions")
+    student: Optional["User"] = Relationship(back_populates="submissions")
 
 
 class SubmissionCreate(SubmissionBase):

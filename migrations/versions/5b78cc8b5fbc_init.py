@@ -1,15 +1,16 @@
+# ruff: noqa: E501
+
 """init
 
 Revision ID: 5b78cc8b5fbc
-Revises: 
+Revises:
 Create Date: 2026-03-31 14:50:10.440148
 
 """
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = '5b78cc8b5fbc'

@@ -1,6 +1,4 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -21,7 +19,7 @@ class StreamBase(SQLModel):
 class Stream(StreamBase, BaseModel, table=True):
     __tablename__ = "streams"
 
-    group: "Group | None" = Relationship(back_populates="streams")
+    group: Optional["Group"] = Relationship(back_populates="streams")
     courses: list["Course"] = Relationship(back_populates="stream")
     import_sources: list["ImportSource"] = Relationship(back_populates="stream")
 

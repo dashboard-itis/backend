@@ -1,3 +1,4 @@
+import asyncio
 from logging.config import fileConfig
 
 from alembic import context
@@ -6,33 +7,22 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlmodel import SQLModel
 
+import app.models  # noqa: F401
 from app.core.settings import settings
-from app.models import (
-    Assignment,
-    Attendance,
-    Course,
-    Grade,
-    Group,
-    ImportSource,
-    PrivacyPolicy,
-    Stream,
-    Submission,
-    User,
-)
 
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option("sqlalchemy.url", settings.db.database_url)
+config.set_main_option("sqlalchemy.url", settings.db.url)
 
 target_metadata = SQLModel.metadata
 
 
 def run_migrations_offline() -> None:
     context.configure(
-        url=settings.db.database_url,
+        url=settings.db.url,
         target_metadata=target_metadata,
         literal_binds=True,
         compare_type=True,
@@ -63,9 +53,9 @@ def run_migrations_online() -> None:
     async def run() -> None:
         async with connectable.connect() as connection:
             await connection.run_sync(do_run_migrations)
+
         await connectable.dispose()
 
-    import asyncio
     asyncio.run(run())
 
 

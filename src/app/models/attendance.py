@@ -1,8 +1,7 @@
-from __future__ import annotations
 
 import enum
 from datetime import date as dt_date
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -30,8 +29,8 @@ class AttendanceBase(SQLModel):
 class Attendance(AttendanceBase, BaseModel, table=True):
     __tablename__ = "attendance"
 
-    course: "Course | None" = Relationship(back_populates="attendance_records")
-    student: "User | None" = Relationship(back_populates="attendance_records")
+    course: Optional["Course"] = Relationship(back_populates="attendance_records")
+    student: Optional["User"] = Relationship(back_populates="attendance_records")
 
 
 class AttendanceCreate(AttendanceBase):

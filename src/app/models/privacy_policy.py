@@ -1,6 +1,5 @@
-from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -21,7 +20,7 @@ class PrivacyPolicyBase(SQLModel):
 class PrivacyPolicy(PrivacyPolicyBase, BaseModel, table=True):
     __tablename__ = "privacy_policies"
 
-    group: "Group | None" = Relationship(back_populates="privacy_policy")
+    group: Optional["Group"] = Relationship(back_populates="privacy_policy")
 
 
 class PrivacyPolicyCreate(PrivacyPolicyBase):

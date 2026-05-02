@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -25,7 +23,7 @@ class AssignmentBase(SQLModel):
 class Assignment(AssignmentBase, BaseModel, table=True):
     __tablename__ = "assignments"
 
-    course: "Course | None" = Relationship(back_populates="assignments")
+    course: Optional["Course"] = Relationship(back_populates="assignments")
     grades: list["Grade"] = Relationship(back_populates="assignment")
     submissions: list["Submission"] = Relationship(back_populates="assignment")
 

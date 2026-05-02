@@ -1,11 +1,11 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy.sql import func
 from sqlmodel import Field, SQLModel
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.utcnow()
 
 
 class BaseModel(SQLModel):
