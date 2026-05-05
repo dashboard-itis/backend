@@ -22,9 +22,9 @@ from app.schemas.auth import (
     TokenResponse,
 )
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter(prefix='/auth', tags=['Auth'])
 
-REFRESH_TOKEN_COOKIE_NAME = "refresh_token"
+REFRESH_TOKEN_COOKIE_NAME = 'refresh_token'
 
 RefreshTokenCookie = Annotated[
     str | None,
@@ -33,7 +33,7 @@ RefreshTokenCookie = Annotated[
 
 
 @router.post(
-    "/register",
+    '/register',
     response_model=RegisterResponse,
     status_code=status.HTTP_201_CREATED,
 )
@@ -52,13 +52,13 @@ async def register(
     if not is_registered:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="User with this email already exists",
+            detail='User with this email already exists',
         )
 
     return RegisterResponse(success=True)
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post('/login', response_model=TokenResponse)
 async def login(
     response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -72,7 +72,7 @@ async def login(
     if tokens is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail='Incorrect email or password',
         )
 
     response.set_cookie(
@@ -81,23 +81,23 @@ async def login(
         max_age=int(settings.auth.refresh_token_lifetime.total_seconds()),
         httponly=True,
         secure=False,
-        samesite="lax",
+        samesite='lax',
     )
 
     return tokens
 
 
-@router.get("/me", response_model=UserPublic)
+@router.get('/me', response_model=UserPublic)
 async def me(
     current_user: Annotated[
         UserPublic,
-        Security(get_current_user, scopes=["auth:me"]),
+        Security(get_current_user, scopes=['auth:me']),
     ],
 ):
     return current_user
 
 
-@router.post("/refresh", response_model=TokenResponse)
+@router.post('/refresh', response_model=TokenResponse)
 async def refresh(
     response: Response,
     auth_service: AuthServiceDep,
@@ -106,7 +106,7 @@ async def refresh(
     if refresh_token is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Refresh token is missing",
+            detail='Refresh token is missing',
         )
 
     tokens = await auth_service.refresh_tokens(refresh_token)
@@ -114,7 +114,7 @@ async def refresh(
     if tokens is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid refresh token",
+            detail='Invalid refresh token',
         )
 
     response.set_cookie(
@@ -123,13 +123,13 @@ async def refresh(
         max_age=int(settings.auth.refresh_token_lifetime.total_seconds()),
         httponly=True,
         secure=False,
-        samesite="lax",
+        samesite='lax',
     )
 
     return tokens
 
 
-@router.post("/logout", response_model=LogoutResponse)
+@router.post('/logout', response_model=LogoutResponse)
 async def logout(
     response: Response,
     auth_service: AuthServiceDep,

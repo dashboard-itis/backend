@@ -17,17 +17,17 @@ class PermissionBase(SQLModel):
 
     @property
     def scope(self) -> str:
-        return f"{self.subject}:{self.action}"
+        return f'{self.subject}:{self.action}'
 
 
 class Permission(PermissionBase, BaseModel, table=True):
-    __tablename__ = "permissions"
+    __tablename__ = 'permissions'
     __table_args__ = (
-        UniqueConstraint("subject", "action", name="uq_permissions_subject_action"),
+        UniqueConstraint('subject', 'action', name='uq_permissions_subject_action'),
     )
 
-    roles: list["Role"] = Relationship(
-        back_populates="permissions",
+    roles: list['Role'] = Relationship(
+        back_populates='permissions',
         link_model=RolePermissionLink,
     )
 

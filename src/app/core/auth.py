@@ -21,7 +21,7 @@ def create_jwt_token(
         iat=int(now.timestamp()),
         exp=int(expires_at.timestamp()),
         jti=str(uuid4()),
-        scope=" ".join(scopes),
+        scope=' '.join(scopes),
     )
 
     token = jwt.encode(

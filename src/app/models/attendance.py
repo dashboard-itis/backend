@@ -1,4 +1,3 @@
-
 import enum
 from datetime import date as dt_date
 from typing import TYPE_CHECKING, Optional
@@ -13,24 +12,24 @@ if TYPE_CHECKING:
 
 
 class AttendanceStatus(str, enum.Enum):
-    PRESENT = "present"
-    ABSENT = "absent"
-    EXCUSED = "excused"
+    PRESENT = 'present'
+    ABSENT = 'absent'
+    EXCUSED = 'excused'
 
 
 class AttendanceBase(SQLModel):
-    course_id: int = Field(foreign_key="courses.id")
-    student_id: int = Field(foreign_key="users.id")
+    course_id: int = Field(foreign_key='courses.id')
+    student_id: int = Field(foreign_key='users.id')
     date: dt_date
     status: AttendanceStatus = Field(default=AttendanceStatus.PRESENT)
     comment: str | None = None
 
 
 class Attendance(AttendanceBase, BaseModel, table=True):
-    __tablename__ = "attendance"
+    __tablename__ = 'attendance'
 
-    course: Optional["Course"] = Relationship(back_populates="attendance_records")
-    student: Optional["User"] = Relationship(back_populates="attendance_records")
+    course: Optional['Course'] = Relationship(back_populates='attendance_records')
+    student: Optional['User'] = Relationship(back_populates='attendance_records')
 
 
 class AttendanceCreate(AttendanceBase):

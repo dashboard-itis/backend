@@ -13,13 +13,13 @@ class BaseModel(SQLModel):
 
     created_at: datetime = Field(
         default_factory=utc_now,
-        sa_column_kwargs={"server_default": func.now()},
+        sa_column_kwargs={'server_default': func.now()},
     )
 
     updated_at: datetime = Field(
         default_factory=utc_now,
         sa_column_kwargs={
-            "server_default": func.now(),
-            "onupdate": func.now(),
+            'server_default': func.now(),
+            'onupdate': func.now(),
         },
     )

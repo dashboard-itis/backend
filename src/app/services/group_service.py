@@ -9,7 +9,7 @@ class GroupService:
 
     async def get_all(self, filters: GroupFilters) -> list[GroupPublic]:
         db_filters = filters.model_dump(
-            exclude={"skip", "limit", "search"},
+            exclude={'skip', 'limit', 'search'},
             exclude_none=True,
         )
 
@@ -26,7 +26,7 @@ class GroupService:
         return GroupPublic.model_validate(group) if group else None
 
     async def get_by_name(self, name: str) -> GroupPublic | None:
-        groups = await self.group_repo.fetch(filters={"name": name}, limit=1)
+        groups = await self.group_repo.fetch(filters={'name': name}, limit=1)
 
         if not groups:
             return None
@@ -37,7 +37,7 @@ class GroupService:
         existing = await self.get_by_name(group_data.name)
 
         if existing:
-            raise ValueError("Group name already exists")
+            raise ValueError('Group name already exists')
 
         group = await self.group_repo.create(**group_data.model_dump())
         return GroupPublic.model_validate(group)

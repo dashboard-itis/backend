@@ -13,9 +13,7 @@ class UserRepository(Repository[User]):
 
     async def get_by_email(self, email: str) -> User | None:
         result = await self.session.exec(
-            select(User)
-            .where(User.email == email)
-            .options(selectinload(User.roles))
+            select(User).where(User.email == email).options(selectinload(User.roles))
         )
         return result.first()
 
@@ -37,9 +35,7 @@ class UserRepository(Repository[User]):
 
     async def get_with_roles(self, user_id: int) -> User | None:
         result = await self.session.exec(
-            select(User)
-            .where(User.id == user_id)
-            .options(selectinload(User.roles))
+            select(User).where(User.id == user_id).options(selectinload(User.roles))
         )
         return result.first()
 

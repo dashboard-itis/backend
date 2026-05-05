@@ -1,0 +1,107 @@
+from sqlalchemy import func
+from sqlalchemy.orm import selectinload
+from sqlmodel import select
+
+from app.dependencies.session import SessionDep
+from app.models.assignment import Assignment
+from app.models.course import Course
+from app.models.grade import Grade
+from app.models.stream import Stream
+from app.repositories.base import Repository
+
+GRADE_A_MIN_SCORE = 90
+GRADE_B_MIN_SCORE = 75
+GRADE_C_MIN_SCORE = 60
+GRADE_D_MIN_SCORE = 50
+
+
+class GradeRepository(Repository[Grade]):
+    def __init__(self, session: SessionDep):
+        super().__init__(session, Grade)
+
+    async def get_student_grades_with_course(
+        self,
+        student_id: int,
+        skip: int = 0,
+        limit: int = 100,
+    ) -> list[Grade]:
+        result = await self.session.exec(
+            select(Grade)
+            .where(Grade.student_id == student_id)
+            .options(selectinload(Grade.assignment).selectinload(Assignment.course))
+            .offset(skip)
+            .limit(limit)
+        )
+        return list(result.all())
+
+    async def get_group_average_score(self, group_id: int) -> float:
+        result = await self.session.exec(
+            select(func.avg(Grade.score))
+            .join(Assignment, Grade.assignment_id == Assignment.id)
+            .join(Course, Assignment.course_id == Course.id)
+            .join(Stream, Course.stream_id == Stream.id)
+            .where(Stream.group_id == group_id)
+        )
+
+        average = result.one_or_none()
+        return float(average or 0)
+
+    async def get_group_grade_distribution(self, group_id: int) -> dict[str, int]:
+        result = await self.session.exec(
+            select(Grade.score)
+            .join(Assignment, Grade.assignment_id == Assignment.id)
+            .join(Course, Assignment.course_id == Course.id)
+            .join(Stream, Course.stream_id == Stream.id)
+            .where(Stream.group_id == group_id)
+        )
+
+        scores = list(result.all())
+
+        distribution = {
+            'A': 0,
+            'B': 0,
+            'C': 0,
+            'D': 0,
+            'F': 0,
+        }
+
+        for score in scores:
+            if score >= GRADE_A_MIN_SCORE:
+                distribution['A'] += 1
+            elif score >= GRADE_B_MIN_SCORE:
+                distribution['B'] += 1
+            elif score >= GRADE_C_MIN_SCORE:
+                distribution['C'] += 1
+            elif score >= GRADE_D_MIN_SCORE:
+                distribution['D'] += 1
+            else:
+                distribution['F'] += 1
+
+        return distribution
+
+    async def get_group_trend(self, group_id: int) -> list[dict]:
+        result = await self.session.exec(
+            select(
+                Stream.semester,
+                Stream.year,
+                func.avg(Grade.score),
+            )
+            .join(Course, Course.stream_id == Stream.id)
+            .join(Assignment, Assignment.course_id == Course.id)
+            .join(Grade, Grade.assignment_id == Assignment.id)
+            .where(Stream.group_id == group_id)
+            .group_by(Stream.year, Stream.semester)
+            .order_by(Stream.year, Stream.semester)
+        )
+
+        trend = []
+
+        for semester, year, average_score in result.all():
+            trend.append(
+                {
+                    'period': f'{semester} семестр {year}',
+                    'average_score': round(float(average_score or 0), 2),
+                }
+            )
+
+        return trend

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class AssignmentBase(SQLModel):
-    course_id: int = Field(foreign_key="courses.id")
+    course_id: int = Field(foreign_key='courses.id')
     title: str = Field(min_length=1, max_length=200)
     description: str | None = None
     max_score: float = Field(ge=0)
@@ -21,11 +21,11 @@ class AssignmentBase(SQLModel):
 
 
 class Assignment(AssignmentBase, BaseModel, table=True):
-    __tablename__ = "assignments"
+    __tablename__ = 'assignments'
 
-    course: Optional["Course"] = Relationship(back_populates="assignments")
-    grades: list["Grade"] = Relationship(back_populates="assignment")
-    submissions: list["Submission"] = Relationship(back_populates="assignment")
+    course: Optional['Course'] = Relationship(back_populates='assignments')
+    grades: list['Grade'] = Relationship(back_populates='assignment')
+    submissions: list['Submission'] = Relationship(back_populates='assignment')
 
 
 class AssignmentCreate(AssignmentBase):

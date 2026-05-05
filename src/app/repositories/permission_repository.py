@@ -14,8 +14,8 @@ class PermissionRepository(Repository[Permission]):
     ) -> Permission | None:
         permissions = await self.fetch(
             filters={
-                "subject": subject,
-                "action": action,
+                'subject': subject,
+                'action': action,
             },
             limit=1,
         )

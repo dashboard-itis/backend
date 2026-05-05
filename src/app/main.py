@@ -24,9 +24,9 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(api_router, prefix="/api/v1")
+app.include_router(api_router, prefix='/api/v1')
 
 
-@app.get("/health")
+@app.get('/health')
 async def health():
-    return {"status": "ok"}
+    return {'status': 'ok'}

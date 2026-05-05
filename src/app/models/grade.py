@@ -10,17 +10,17 @@ if TYPE_CHECKING:
 
 
 class GradeBase(SQLModel):
-    student_id: int = Field(foreign_key="users.id")
-    assignment_id: int = Field(foreign_key="assignments.id")
+    student_id: int = Field(foreign_key='users.id')
+    assignment_id: int = Field(foreign_key='assignments.id')
     score: float = Field(ge=0, le=100)
     comment: str | None = None
 
 
 class Grade(GradeBase, BaseModel, table=True):
-    __tablename__ = "grades"
+    __tablename__ = 'grades'
 
-    student: Optional["User"] = Relationship(back_populates="grades")
-    assignment: Optional["Assignment"] = Relationship(back_populates="grades")
+    student: Optional['User'] = Relationship(back_populates='grades')
+    assignment: Optional['Assignment'] = Relationship(back_populates='grades')
 
 
 class GradeCreate(GradeBase):

@@ -10,16 +10,16 @@ if TYPE_CHECKING:
 
 
 class SubmissionBase(SQLModel):
-    assignment_id: int = Field(foreign_key="assignments.id")
-    student_id: int = Field(foreign_key="users.id")
+    assignment_id: int = Field(foreign_key='assignments.id')
+    student_id: int = Field(foreign_key='users.id')
     content: str
 
 
 class Submission(SubmissionBase, BaseModel, table=True):
-    __tablename__ = "submissions"
+    __tablename__ = 'submissions'
 
-    assignment: Optional["Assignment"] = Relationship(back_populates="submissions")
-    student: Optional["User"] = Relationship(back_populates="submissions")
+    assignment: Optional['Assignment'] = Relationship(back_populates='submissions')
+    student: Optional['User'] = Relationship(back_populates='submissions')
 
 
 class SubmissionCreate(SubmissionBase):

@@ -10,7 +10,7 @@ class CourseService:
     async def get_all(self, filters: CourseFilters) -> list[CoursePublic]:
         filters_data = filters.model_dump(
             exclude_none=True,
-            exclude={"skip", "limit", "search"},
+            exclude={'skip', 'limit', 'search'},
         )
 
         courses = await self.course_repo.fetch(

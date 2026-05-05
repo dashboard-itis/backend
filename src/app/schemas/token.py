@@ -6,7 +6,7 @@ class TokenData(BaseModel):
     iat: int
     exp: int
     jti: str
-    scope: str = ""
+    scope: str = ''
 
     @property
     def user_id(self) -> int:

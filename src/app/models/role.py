@@ -16,14 +16,14 @@ class RoleBase(SQLModel):
 
 
 class Role(RoleBase, BaseModel, table=True):
-    __tablename__ = "roles"
+    __tablename__ = 'roles'
 
-    users: list["User"] = Relationship(
-        back_populates="roles",
+    users: list['User'] = Relationship(
+        back_populates='roles',
         link_model=UserRoleLink,
     )
-    permissions: list["Permission"] = Relationship(
-        back_populates="roles",
+    permissions: list['Permission'] = Relationship(
+        back_populates='roles',
         link_model=RolePermissionLink,
     )
 

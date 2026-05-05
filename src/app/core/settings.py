@@ -6,12 +6,12 @@ from sqlalchemy.engine import URL
 
 
 class DatabaseSettings(BaseSettings):
-    drivername: str = "postgresql+asyncpg"
-    host: str = "localhost"
+    drivername: str = 'postgresql+asyncpg'
+    host: str = 'localhost'
     port: int = 5432
-    user: str = "postgres"
-    password: str = "postgres"
-    name: str = "app_db"
+    user: str = 'postgres'
+    password: str = 'postgres'
+    name: str = 'app_db'
 
     @property
     def url(self) -> str:
@@ -26,37 +26,37 @@ class DatabaseSettings(BaseSettings):
 
 
 class AppSettings(BaseSettings):
-    name: str = "Dashboard ITIS"
-    version: str = "1.0.0"
+    name: str = 'Dashboard ITIS'
+    version: str = '1.0.0'
 
 
 class AuthSettings(BaseSettings):
     secret_key: str
-    algorithm: str = "HS256"
+    algorithm: str = 'HS256'
     access_token_lifetime: timedelta = timedelta(minutes=15)
     refresh_token_lifetime: timedelta = timedelta(days=30)
 
 
 class RBACSettings(BaseSettings):
-    admin_role: str = "admin"
-    public_role: str = "public"
-    student_role: str = "student"
-    curator_role: str = "curator"
+    admin_role: str = 'admin'
+    public_role: str = 'public'
+    student_role: str = 'student'
+    curator_role: str = 'curator'
 
 
 class AdminSettings(BaseSettings):
-    email: str = "admin@example.com"
-    password: str = "admin12345"
-    first_name: str = "Admin"
-    last_name: str = "User"
+    email: str = 'admin@example.com'
+    password: str = 'admin12345'
+    first_name: str = 'Admin'
+    last_name: str = 'User'
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        env_nested_delimiter="__",
-        extra="ignore",
+        env_file='.env',
+        env_file_encoding='utf-8',
+        env_nested_delimiter='__',
+        extra='ignore',
     )
 
     db: DatabaseSettings
