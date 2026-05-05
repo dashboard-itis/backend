@@ -14,17 +14,17 @@ if TYPE_CHECKING:
 class CourseBase(SQLModel):
     name: str = Field(min_length=1, max_length=255)
     description: str | None = None
-    stream_id: int | None = Field(default=None, foreign_key="streams.id")
-    teacher_id: int | None = Field(default=None, foreign_key="users.id")
+    stream_id: int | None = Field(default=None, foreign_key='streams.id')
+    teacher_id: int | None = Field(default=None, foreign_key='users.id')
 
 
 class Course(CourseBase, BaseModel, table=True):
-    __tablename__ = "courses"
+    __tablename__ = 'courses'
 
-    stream: Optional["Stream"] = Relationship(back_populates="courses")
-    teacher: Optional["User"] = Relationship(back_populates="courses")
-    assignments: list["Assignment"] = Relationship(back_populates="course")
-    attendance_records: list["Attendance"] = Relationship(back_populates="course")
+    stream: Optional['Stream'] = Relationship(back_populates='courses')
+    teacher: Optional['User'] = Relationship(back_populates='courses')
+    assignments: list['Assignment'] = Relationship(back_populates='course')
+    attendance_records: list['Attendance'] = Relationship(back_populates='course')
 
 
 class CourseCreate(CourseBase):

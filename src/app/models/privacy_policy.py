@@ -1,4 +1,3 @@
-
 from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
@@ -10,17 +9,17 @@ if TYPE_CHECKING:
 
 
 class PrivacyPolicyBase(SQLModel):
-    group_id: int = Field(foreign_key="groups.id", unique=True)
+    group_id: int = Field(foreign_key='groups.id', unique=True)
     show_rating_to_students: bool = True
-    rating_mode: str = "anonymized"
+    rating_mode: str = 'anonymized'
     allow_student_stats: bool = True
     version: int = Field(default=1, ge=1)
 
 
 class PrivacyPolicy(PrivacyPolicyBase, BaseModel, table=True):
-    __tablename__ = "privacy_policies"
+    __tablename__ = 'privacy_policies'
 
-    group: Optional["Group"] = Relationship(back_populates="privacy_policy")
+    group: Optional['Group'] = Relationship(back_populates='privacy_policy')
 
 
 class PrivacyPolicyCreate(PrivacyPolicyBase):

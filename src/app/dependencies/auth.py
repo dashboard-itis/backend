@@ -8,8 +8,8 @@ from app.dependencies.services import AuthServiceDep
 from app.models.user import UserPublic
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/api/v1/auth/login",
-    refreshUrl="/api/v1/auth/refresh",
+    tokenUrl='/api/v1/auth/login',
+    refreshUrl='/api/v1/auth/refresh',
     scopes=PERMISSION_DESCRIPTIONS,
 )
 
@@ -25,17 +25,15 @@ async def get_current_user(
     )
 
     if user is None:
-        authenticate_value = "Bearer"
+        authenticate_value = 'Bearer'
 
         if security_scopes.scopes:
-            authenticate_value = (
-                f'Bearer scope="{security_scopes.scope_str}"'
-            )
+            authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
 
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token or not enough permissions",
-            headers={"WWW-Authenticate": authenticate_value},
+            detail='Invalid token or not enough permissions',
+            headers={'WWW-Authenticate': authenticate_value},
         )
 
     return user

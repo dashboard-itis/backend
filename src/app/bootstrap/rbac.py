@@ -58,13 +58,11 @@ class RBACBootstrapper:
         for role_name, scopes in INITIAL_ROLE_SCOPES.items():
             role = roles[role_name]
 
-            if "*" in scopes:
+            if '*' in scopes:
                 role.permissions = list(permissions.values())
             else:
                 role.permissions = [
-                    permissions[scope]
-                    for scope in scopes
-                    if scope in permissions
+                    permissions[scope] for scope in scopes if scope in permissions
                 ]
 
             await self.role_repo.save(role)

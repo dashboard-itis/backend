@@ -7,15 +7,15 @@ from app.dependencies.services import CourseServiceDep
 from app.models.course import CourseCreate, CoursePublic, CourseUpdate
 from app.schemas.course_filters import CourseFilters
 
-router = APIRouter(prefix="/courses", tags=["Courses"])
+router = APIRouter(prefix='/courses', tags=['Courses'])
 
 CourseFiltersDep = Annotated[CourseFilters, Depends()]
 
 
 @router.get(
-    "/",
+    '/',
     response_model=list[CoursePublic],
-    dependencies=[Security(get_current_user, scopes=["courses:list"])],
+    dependencies=[Security(get_current_user, scopes=['courses:list'])],
 )
 async def get_courses(
     service: CourseServiceDep,
@@ -25,9 +25,9 @@ async def get_courses(
 
 
 @router.get(
-    "/{course_id}",
+    '/{course_id}',
     response_model=CoursePublic,
-    dependencies=[Security(get_current_user, scopes=["courses:read"])],
+    dependencies=[Security(get_current_user, scopes=['courses:read'])],
 )
 async def get_course(course_id: int, service: CourseServiceDep):
     course = await service.get_by_id(course_id)
@@ -35,17 +35,17 @@ async def get_course(course_id: int, service: CourseServiceDep):
     if course is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Course not found",
+            detail='Course not found',
         )
 
     return course
 
 
 @router.post(
-    "/",
+    '/',
     response_model=CoursePublic,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Security(get_current_user, scopes=["courses:create"])],
+    dependencies=[Security(get_current_user, scopes=['courses:create'])],
 )
 async def create_course(
     course_data: CourseCreate,
@@ -55,9 +55,9 @@ async def create_course(
 
 
 @router.put(
-    "/{course_id}",
+    '/{course_id}',
     response_model=CoursePublic,
-    dependencies=[Security(get_current_user, scopes=["courses:update"])],
+    dependencies=[Security(get_current_user, scopes=['courses:update'])],
 )
 async def update_course(
     course_id: int,
@@ -69,16 +69,16 @@ async def update_course(
     if course is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Course not found",
+            detail='Course not found',
         )
 
     return course
 
 
 @router.delete(
-    "/{course_id}",
+    '/{course_id}',
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Security(get_current_user, scopes=["courses:delete"])],
+    dependencies=[Security(get_current_user, scopes=['courses:delete'])],
 )
 async def delete_course(course_id: int, service: CourseServiceDep):
     deleted = await service.delete(course_id)
@@ -86,5 +86,5 @@ async def delete_course(course_id: int, service: CourseServiceDep):
     if not deleted:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Course not found",
+            detail='Course not found',
         )

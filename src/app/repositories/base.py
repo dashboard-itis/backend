@@ -5,7 +5,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.models.base import BaseModel
 
-T = TypeVar("T", bound=BaseModel)
+T = TypeVar('T', bound=BaseModel)
 
 
 class Repository(Generic[T]):
@@ -29,8 +29,8 @@ class Repository(Generic[T]):
             for field_name, value in filters.items():
                 query = query.where(getattr(self.model, field_name) == value)
 
-        if search and hasattr(self.model, "name"):
-            query = query.where(self.model.name.ilike(f"%{search}%"))
+        if search and hasattr(self.model, 'name'):
+            query = query.where(self.model.name.ilike(f'%{search}%'))
 
         query = query.offset(skip).limit(limit)
 

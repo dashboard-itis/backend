@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class RefreshSessionBase(SQLModel):
-    user_id: int = Field(foreign_key="users.id")
+    user_id: int = Field(foreign_key='users.id')
     access_token_jti: str = Field(
         index=True,
         unique=True,
@@ -28,9 +28,9 @@ class RefreshSessionBase(SQLModel):
 
 
 class RefreshSession(RefreshSessionBase, BaseModel, table=True):
-    __tablename__ = "refresh_sessions"
+    __tablename__ = 'refresh_sessions'
 
-    user: Optional["User"] = Relationship(back_populates="refresh_sessions")
+    user: Optional['User'] = Relationship(back_populates='refresh_sessions')
 
     @property
     def is_valid(self) -> bool:

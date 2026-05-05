@@ -16,11 +16,11 @@ class GroupBase(SQLModel):
 
 
 class Group(GroupBase, BaseModel, table=True):
-    __tablename__ = "groups"
+    __tablename__ = 'groups'
 
-    users: list["User"] = Relationship(back_populates="group")
-    streams: list["Stream"] = Relationship(back_populates="group")
-    privacy_policy: Optional["PrivacyPolicy"] = Relationship(back_populates="group")
+    users: list['User'] = Relationship(back_populates='group')
+    streams: list['Stream'] = Relationship(back_populates='group')
+    privacy_policy: Optional['PrivacyPolicy'] = Relationship(back_populates='group')
 
 
 class GroupCreate(GroupBase):

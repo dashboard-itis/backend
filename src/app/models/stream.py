@@ -11,17 +11,17 @@ if TYPE_CHECKING:
 
 
 class StreamBase(SQLModel):
-    group_id: int = Field(foreign_key="groups.id")
+    group_id: int = Field(foreign_key='groups.id')
     semester: int = Field(ge=1, le=2)
     year: int = Field(ge=2000, le=2100)
 
 
 class Stream(StreamBase, BaseModel, table=True):
-    __tablename__ = "streams"
+    __tablename__ = 'streams'
 
-    group: Optional["Group"] = Relationship(back_populates="streams")
-    courses: list["Course"] = Relationship(back_populates="stream")
-    import_sources: list["ImportSource"] = Relationship(back_populates="stream")
+    group: Optional['Group'] = Relationship(back_populates='streams')
+    courses: list['Course'] = Relationship(back_populates='stream')
+    import_sources: list['ImportSource'] = Relationship(back_populates='stream')
 
 
 class StreamCreate(StreamBase):

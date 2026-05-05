@@ -33,15 +33,15 @@ class AuthService:
 
         user_create = UserCreate(**data.model_dump())
 
-        user_data = user_create.model_dump(exclude={"password"})
-        user_data["password_hash"] = hash_password(user_create.password)
+        user_data = user_create.model_dump(exclude={'password'})
+        user_data['password_hash'] = hash_password(user_create.password)
 
         user = await self.user_repo.create(**user_data)
 
         public_role = await self.role_repo.get_by_name(settings.rbac.public_role)
 
         if public_role is None:
-            raise ValueError("Public role does not exist")
+            raise ValueError('Public role does not exist')
 
         await self.user_repo.add_role(user, public_role)
 
@@ -71,7 +71,7 @@ class AuthService:
         user_with_roles = await self.user_repo.get_by_id_with_roles(user.id)
 
         if user_with_roles is None:
-            raise ValueError("User not found")
+            raise ValueError('User not found')
 
         scopes = await self.get_user_scopes(user_with_roles)
 
@@ -144,9 +144,9 @@ class AuthService:
 
         refresh_sessions = await self.refresh_session_repo.fetch(
             filters={
-                "user_id": token_data.user_id,
-                "refresh_token_jti": token_data.jti,
-                "is_invalidated": False,
+                'user_id': token_data.user_id,
+                'refresh_token_jti': token_data.jti,
+                'is_invalidated': False,
             },
             limit=1,
         )
@@ -179,9 +179,9 @@ class AuthService:
 
         refresh_sessions = await self.refresh_session_repo.fetch(
             filters={
-                "user_id": token_data.user_id,
-                "refresh_token_jti": token_data.jti,
-                "is_invalidated": False,
+                'user_id': token_data.user_id,
+                'refresh_token_jti': token_data.jti,
+                'is_invalidated': False,
             },
             limit=1,
         )
@@ -203,12 +203,9 @@ class AuthService:
         token_data: TokenData,
         required_scopes: list[str],
     ) -> bool:
-        if "*" in token_data.scopes:
+        if '*' in token_data.scopes:
             return True
 
         token_scopes = set(token_data.scopes)
 
-        return all(
-            required_scope in token_scopes
-            for required_scope in required_scopes
-        )
+        return all(required_scope in token_scopes for required_scope in required_scopes)

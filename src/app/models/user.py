@@ -20,23 +20,23 @@ class UserBase(SQLModel):
     email: EmailStr = Field(index=True, unique=True, max_length=255)
     first_name: str = Field(min_length=1, max_length=50)
     last_name: str = Field(min_length=1, max_length=50)
-    group_id: int | None = Field(default=None, foreign_key="groups.id")
+    group_id: int | None = Field(default=None, foreign_key='groups.id')
 
 
 class User(UserBase, BaseModel, table=True):
-    __tablename__ = "users"
+    __tablename__ = 'users'
 
     password_hash: str
 
-    group: Optional["Group"] = Relationship(back_populates="users")
-    courses: list["Course"] = Relationship(back_populates="teacher")
-    grades: list["Grade"] = Relationship(back_populates="student")
-    submissions: list["Submission"] = Relationship(back_populates="student")
-    attendance_records: list["Attendance"] = Relationship(back_populates="student")
-    refresh_sessions: list["RefreshSession"] = Relationship(back_populates="user")
+    group: Optional['Group'] = Relationship(back_populates='users')
+    courses: list['Course'] = Relationship(back_populates='teacher')
+    grades: list['Grade'] = Relationship(back_populates='student')
+    submissions: list['Submission'] = Relationship(back_populates='student')
+    attendance_records: list['Attendance'] = Relationship(back_populates='student')
+    refresh_sessions: list['RefreshSession'] = Relationship(back_populates='user')
 
-    roles: list["Role"] = Relationship(
-        back_populates="users",
+    roles: list['Role'] = Relationship(
+        back_populates='users',
         link_model=UserRoleLink,
     )
 
