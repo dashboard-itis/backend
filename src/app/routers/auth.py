@@ -5,12 +5,14 @@ from fastapi import (
     Cookie,
     Depends,
     HTTPException,
+    Request,
     Response,
     Security,
     status,
 )
 from fastapi.security import OAuth2PasswordRequestForm
 
+from app.core.rate_limit import limiter
 from app.core.settings import settings
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import AuthServiceDep
@@ -37,10 +39,14 @@ RefreshTokenCookie = Annotated[
     response_model=RegisterResponse,
     status_code=status.HTTP_201_CREATED,
 )
+@limiter.limit(settings.rate_limit.auth_limit)
 async def register(
+    request: Request,
     data: RegisterRequest,
     auth_service: AuthServiceDep,
 ):
+    _ = request
+
     try:
         is_registered = await auth_service.register(data)
     except ValueError as exc:
@@ -59,11 +65,15 @@ async def register(
 
 
 @router.post('/login', response_model=TokenResponse)
+@limiter.limit(settings.rate_limit.auth_limit)
 async def login(
+    request: Request,
     response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     auth_service: AuthServiceDep,
 ):
+    _ = request
+
     tokens = await auth_service.login(
         email=form_data.username,
         password=form_data.password,
@@ -98,11 +108,15 @@ async def me(
 
 
 @router.post('/refresh', response_model=TokenResponse)
+@limiter.limit(settings.rate_limit.auth_limit)
 async def refresh(
+    request: Request,
     response: Response,
     auth_service: AuthServiceDep,
     refresh_token: RefreshTokenCookie = None,
 ):
+    _ = request
+
     if refresh_token is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

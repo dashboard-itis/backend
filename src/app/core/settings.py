@@ -28,6 +28,31 @@ class DatabaseSettings(BaseSettings):
 class AppSettings(BaseSettings):
     name: str = 'Dashboard ITIS'
     version: str = '1.0.0'
+    description: str = 'API for academic performance analytics dashboard'
+    servers: list[str] = ['http://localhost:8000']
+
+
+class CORSSettings(BaseSettings):
+    allow_origins: list[str] = [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'http://localhost:8080',
+    ]
+    allow_credentials: bool = True
+    allow_methods: list[str] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+    allow_headers: list[str] = [
+        'Accept',
+        'Authorization',
+        'Content-Type',
+        'Origin',
+        'X-Requested-With',
+    ]
+    max_age: int = 600
+
+
+class RateLimitSettings(BaseSettings):
+    default_limit: str = '100/minute'
+    auth_limit: str = '10/minute'
 
 
 class AuthSettings(BaseSettings):
@@ -64,6 +89,8 @@ class Settings(BaseSettings):
     auth: AuthSettings
     rbac: RBACSettings
     admin: AdminSettings
+    cors: CORSSettings = CORSSettings()
+    rate_limit: RateLimitSettings = RateLimitSettings()
 
 
 @lru_cache

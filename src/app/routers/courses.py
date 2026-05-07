@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Security, status
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import CourseServiceDep
 from app.models.course import CourseCreate, CoursePublic, CourseUpdate
+from app.schemas.base import PaginatedResponse
 from app.schemas.course_filters import CourseFilters
 
 router = APIRouter(prefix='/courses', tags=['Courses'])
@@ -14,7 +15,7 @@ CourseFiltersDep = Annotated[CourseFilters, Depends()]
 
 @router.get(
     '/',
-    response_model=list[CoursePublic],
+    response_model=PaginatedResponse[CoursePublic],
     dependencies=[Security(get_current_user, scopes=['courses:list'])],
 )
 async def get_courses(

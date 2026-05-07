@@ -44,6 +44,14 @@ to start on root project:
 
 PYTHONPATH=src uv run uvicorn app.main:app --reload
 
+Production-like start:
+
+PYTHONPATH=src uv run gunicorn app.main:app -c gunicorn_config.py
+
+Initialize RBAC data:
+
+uv run init.py
+
 
 ## Environment Variables
 

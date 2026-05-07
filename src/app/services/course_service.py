@@ -1,5 +1,6 @@
 from app.dependencies.repositories import CourseRepositoryDep
 from app.models.course import CourseCreate, CoursePublic, CourseUpdate
+from app.schemas.base import PaginatedResponse
 from app.schemas.course_filters import CourseFilters
 
 
@@ -7,19 +8,28 @@ class CourseService:
     def __init__(self, course_repo: CourseRepositoryDep):
         self.course_repo = course_repo
 
-    async def get_all(self, filters: CourseFilters) -> list[CoursePublic]:
+    async def get_all(self, filters: CourseFilters) -> PaginatedResponse[CoursePublic]:
         filters_data = filters.model_dump(
             exclude_none=True,
             exclude={'skip', 'limit', 'search'},
         )
 
+        total = await self.course_repo.count(
+            filters=filters_data,
+            search=filters.search,
+        )
         courses = await self.course_repo.fetch(
             skip=filters.skip,
             limit=filters.limit,
             filters=filters_data,
             search=filters.search,
         )
-        return [CoursePublic.model_validate(course) for course in courses]
+        return PaginatedResponse[CoursePublic](
+            items=[CoursePublic.model_validate(course) for course in courses],
+            total=total,
+            skip=filters.skip,
+            limit=filters.limit,
+        )
 
     async def get_by_id(self, course_id: int) -> CoursePublic | None:
         course = await self.course_repo.get(course_id)

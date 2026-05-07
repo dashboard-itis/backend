@@ -1,4 +1,5 @@
 from app.dependencies.repositories import GradeRepositoryDep
+from app.schemas.base import PaginatedResponse
 from app.schemas.grade import StudentGradeResponse
 
 
@@ -11,7 +12,8 @@ class GradeService:
         student_id: int,
         skip: int = 0,
         limit: int = 100,
-    ) -> list[StudentGradeResponse]:
+    ) -> PaginatedResponse[StudentGradeResponse]:
+        total = await self.grade_repo.count(filters={'student_id': student_id})
         grades = await self.grade_repo.get_student_grades_with_course(
             student_id=student_id,
             skip=skip,
@@ -38,4 +40,9 @@ class GradeService:
                 )
             )
 
-        return result
+        return PaginatedResponse[StudentGradeResponse](
+            items=result,
+            total=total,
+            skip=skip,
+            limit=limit,
+        )

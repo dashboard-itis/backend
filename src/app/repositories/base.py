@@ -1,5 +1,7 @@
 from typing import Generic, TypeVar
 
+from sqlalchemy import func
+from sqlalchemy.sql import Select
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -24,7 +26,29 @@ class Repository(Generic[T]):
         search: str | None = None,
     ) -> list[T]:
         query = select(self.model)
+        query = self._apply_filters(query, filters=filters, search=search)
+        query = query.offset(skip).limit(limit)
 
+        result = await self.session.exec(query)
+        return list(result.all())
+
+    async def count(
+        self,
+        filters: dict | None = None,
+        search: str | None = None,
+    ) -> int:
+        query = select(func.count()).select_from(self.model)
+        query = self._apply_filters(query, filters=filters, search=search)
+
+        result = await self.session.exec(query)
+        return int(result.one())
+
+    def _apply_filters(
+        self,
+        query: Select,
+        filters: dict | None = None,
+        search: str | None = None,
+    ) -> Select:
         if filters:
             for field_name, value in filters.items():
                 query = query.where(getattr(self.model, field_name) == value)
@@ -32,10 +56,7 @@ class Repository(Generic[T]):
         if search and hasattr(self.model, 'name'):
             query = query.where(self.model.name.ilike(f'%{search}%'))
 
-        query = query.offset(skip).limit(limit)
-
-        result = await self.session.exec(query)
-        return list(result.all())
+        return query
 
     async def create(self, **data) -> T:
         obj = self.model(**data)
