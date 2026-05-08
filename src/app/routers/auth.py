@@ -41,12 +41,10 @@ RefreshTokenCookie = Annotated[
 )
 @limiter.limit(settings.rate_limit.auth_limit)
 async def register(
-    request: Request,
+    request: Request,  # noqa: ARG001
     data: RegisterRequest,
     auth_service: AuthServiceDep,
 ):
-    _ = request
-
     try:
         is_registered = await auth_service.register(data)
     except ValueError as exc:
@@ -67,13 +65,11 @@ async def register(
 @router.post('/login', response_model=TokenResponse)
 @limiter.limit(settings.rate_limit.auth_limit)
 async def login(
-    request: Request,
+    request: Request,  # noqa: ARG001
     response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     auth_service: AuthServiceDep,
 ):
-    _ = request
-
     tokens = await auth_service.login(
         email=form_data.username,
         password=form_data.password,
@@ -110,13 +106,11 @@ async def me(
 @router.post('/refresh', response_model=TokenResponse)
 @limiter.limit(settings.rate_limit.auth_limit)
 async def refresh(
-    request: Request,
+    request: Request,  # noqa: ARG001
     response: Response,
     auth_service: AuthServiceDep,
     refresh_token: RefreshTokenCookie = None,
 ):
-    _ = request
-
     if refresh_token is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

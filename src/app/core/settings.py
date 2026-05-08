@@ -1,8 +1,11 @@
 from datetime import timedelta
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import URL
+
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
 class DatabaseSettings(BaseSettings):
@@ -78,7 +81,7 @@ class AdminSettings(BaseSettings):
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file='.env',
+        env_file=PROJECT_ROOT / '.env',
         env_file_encoding='utf-8',
         env_nested_delimiter='__',
         extra='ignore',

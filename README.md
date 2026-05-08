@@ -42,11 +42,11 @@ Backend part project
 
 to start on root project:
 
-PYTHONPATH=src uv run uvicorn app.main:app --reload
+uv run uvicorn app.main:app --reload --app-dir src
 
 Production-like start:
 
-PYTHONPATH=src uv run gunicorn app.main:app -c gunicorn_config.py
+uv run gunicorn app.main:app -c gunicorn_config.py
 
 Initialize RBAC data:
 
