@@ -38,11 +38,15 @@ Dashboard ITIS — это веб-приложение с интуитивно п
 
 ## How to Run
 
-Backend part project
+Backend part project. Run commands from the `src` directory:
 
-to start on root project:
+```bash
+cd src
+```
 
-uv run uvicorn app.main:app --reload --app-dir src
+Development start:
+
+uv run uvicorn app.main:app --reload
 
 Production-like start:
 
@@ -55,7 +59,7 @@ uv run init.py
 
 ## Environment Variables
 
-Create `.env` file in project root.
+Create `.env` file in the `src` directory.
 
 | Variable | Type | Description | Default |
 |----------|------|-------------|---------|
@@ -87,5 +91,5 @@ Create `.env` file in project root.
 Create migration:
 
 ```bash
-PYTHONPATH=src uv run alembic revision --autogenerate -m "message"
+uv run alembic revision --autogenerate -m "message"
 ```
