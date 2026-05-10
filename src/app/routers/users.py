@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Security, status
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import UserServiceDep
 from app.models.user import UserCreate, UserPublic, UserUpdate
+from app.schemas.base import PaginatedResponse
 from app.schemas.user_filters import UserFilters
 from app.schemas.user_roles import UserRolesUpdate
 
@@ -15,7 +16,7 @@ UserFiltersDep = Annotated[UserFilters, Depends()]
 
 @router.get(
     '/',
-    response_model=list[UserPublic],
+    response_model=PaginatedResponse[UserPublic],
     dependencies=[Security(get_current_user, scopes=['users:list'])],
 )
 async def get_users(

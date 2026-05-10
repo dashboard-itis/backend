@@ -1,5 +1,6 @@
 from app.dependencies.repositories import GroupRepositoryDep
 from app.models.group import GroupCreate, GroupPublic, GroupUpdate
+from app.schemas.base import PaginatedResponse
 from app.schemas.group_filters import GroupFilters
 
 
@@ -7,19 +8,28 @@ class GroupService:
     def __init__(self, group_repo: GroupRepositoryDep):
         self.group_repo = group_repo
 
-    async def get_all(self, filters: GroupFilters) -> list[GroupPublic]:
+    async def get_all(self, filters: GroupFilters) -> PaginatedResponse[GroupPublic]:
         db_filters = filters.model_dump(
             exclude={'skip', 'limit', 'search'},
             exclude_none=True,
         )
 
+        total = await self.group_repo.count(
+            filters=db_filters,
+            search=filters.search,
+        )
         groups = await self.group_repo.fetch(
             skip=filters.skip,
             limit=filters.limit,
             filters=db_filters,
             search=filters.search,
         )
-        return [GroupPublic.model_validate(group) for group in groups]
+        return PaginatedResponse[GroupPublic](
+            items=[GroupPublic.model_validate(group) for group in groups],
+            total=total,
+            skip=filters.skip,
+            limit=filters.limit,
+        )
 
     async def get_by_id(self, group_id: int) -> GroupPublic | None:
         group = await self.group_repo.get(group_id)

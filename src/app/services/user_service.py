@@ -1,5 +1,6 @@
 from app.dependencies.repositories import RoleRepositoryDep, UserRepositoryDep
 from app.models.user import UserCreate, UserPublic, UserUpdate
+from app.schemas.base import PaginatedResponse
 from app.schemas.user_filters import UserFilters
 from app.utils.security import hash_password
 
@@ -13,19 +14,28 @@ class UserService:
         self.user_repo = user_repo
         self.role_repo = role_repo
 
-    async def get_all(self, filters: UserFilters) -> list[UserPublic]:
+    async def get_all(self, filters: UserFilters) -> PaginatedResponse[UserPublic]:
         db_filters = filters.model_dump(
             exclude={'skip', 'limit', 'search'},
             exclude_none=True,
         )
 
+        total = await self.user_repo.count(
+            filters=db_filters,
+            search=filters.search,
+        )
         users = await self.user_repo.fetch(
             skip=filters.skip,
             limit=filters.limit,
             filters=db_filters,
             search=filters.search,
         )
-        return [UserPublic.model_validate(user) for user in users]
+        return PaginatedResponse[UserPublic](
+            items=[UserPublic.model_validate(user) for user in users],
+            total=total,
+            skip=filters.skip,
+            limit=filters.limit,
+        )
 
     async def get_by_id(self, user_id: int) -> UserPublic | None:
         user = await self.user_repo.get(user_id)

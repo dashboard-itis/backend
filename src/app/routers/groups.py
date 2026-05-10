@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Security, status
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import GroupServiceDep
 from app.models.group import GroupCreate, GroupPublic, GroupUpdate
+from app.schemas.base import PaginatedResponse
 from app.schemas.group_filters import GroupFilters
 
 router = APIRouter(prefix='/groups', tags=['Groups'])
@@ -14,7 +15,7 @@ GroupFiltersDep = Annotated[GroupFilters, Depends()]
 
 @router.get(
     '/',
-    response_model=list[GroupPublic],
+    response_model=PaginatedResponse[GroupPublic],
     dependencies=[Security(get_current_user, scopes=['groups:list'])],
 )
 async def get_groups(
