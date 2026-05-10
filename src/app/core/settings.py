@@ -1,7 +1,6 @@
 from datetime import timedelta
 from functools import lru_cache
 
-from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import URL
 
@@ -90,8 +89,8 @@ class Settings(BaseSettings):
     auth: AuthSettings
     rbac: RBACSettings
     admin: AdminSettings
-    cors: CORSSettings = Field(default_factory=CORSSettings)
-    rate_limit: RateLimitSettings = Field(default_factory=RateLimitSettings)
+    cors: CORSSettings = {}
+    rate_limit: RateLimitSettings = {}
 
 
 @lru_cache
