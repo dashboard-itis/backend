@@ -4,6 +4,7 @@ from fastapi import Depends
 
 from app.repositories.attendance_repository import AttendanceRepository
 from app.repositories.course_repository import CourseRepository
+from app.repositories.email_notification_repository import EmailNotificationRepository
 from app.repositories.grade_repository import GradeRepository
 from app.repositories.group_repository import GroupRepository
 from app.repositories.permission_repository import PermissionRepository
@@ -61,4 +62,9 @@ AttendanceRepositoryDep = Annotated[
 SubmissionRepositoryDep = Annotated[
     SubmissionRepository,
     Depends(SubmissionRepository),
+]
+
+EmailNotificationRepositoryDep = Annotated[
+    EmailNotificationRepository,
+    Depends(EmailNotificationRepository),
 ]

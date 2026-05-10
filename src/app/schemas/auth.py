@@ -23,3 +23,24 @@ class LogoutResponse(BaseModel):
 
 class RegisterResponse(BaseModel):
     success: bool
+
+
+class ConfirmAccountRequest(BaseModel):
+    user_id: int
+    code: str = Field(min_length=1, max_length=100)
+
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordResetConfirmRequest(BaseModel):
+    user_id: int
+    code: str = Field(min_length=1, max_length=100)
+    password: str = Field(min_length=8)
+    password_confirm: str = Field(min_length=8)
+
+
+class MessageResponse(BaseModel):
+    success: bool
+    message: str

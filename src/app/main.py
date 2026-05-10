@@ -2,13 +2,23 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.errors import RateLimitExceeded
-from slowapi.extension import _rate_limit_exceeded_handler
 from slowapi.middleware import SlowAPIMiddleware
+from starlette.exceptions import HTTPException
 
+from app.core.exceptions import AppError
 from app.core.rate_limit import limiter
 from app.core.settings import settings
+from app.handlers.errors import (
+    app_exception_handler,
+    http_exception_handler,
+    rate_limit_exception_handler,
+    unhandled_exception_handler,
+    validation_exception_handler,
+)
+from app.middlewares.logging import RequestLoggingMiddleware
 from app.routers import api_router
 
 logger = logging.getLogger(__name__)
@@ -31,9 +41,14 @@ app = FastAPI(
 )
 
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, rate_limit_exception_handler)
+app.add_exception_handler(AppError, app_exception_handler)
+app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, unhandled_exception_handler)
 
 app.add_middleware(SlowAPIMiddleware)
+app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors.allow_origins,

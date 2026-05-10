@@ -9,6 +9,7 @@ from app.models.links import UserRoleLink
 if TYPE_CHECKING:
     from app.models.attendance import Attendance
     from app.models.course import Course
+    from app.models.email_notification import EmailNotification
     from app.models.grade import Grade
     from app.models.group import Group
     from app.models.refresh_session import RefreshSession
@@ -21,6 +22,7 @@ class UserBase(SQLModel):
     first_name: str = Field(min_length=1, max_length=50)
     last_name: str = Field(min_length=1, max_length=50)
     group_id: int | None = Field(default=None, foreign_key='groups.id')
+    is_confirmed: bool = Field(default=False, index=True)
 
 
 class User(UserBase, BaseModel, table=True):
@@ -34,6 +36,9 @@ class User(UserBase, BaseModel, table=True):
     submissions: list['Submission'] = Relationship(back_populates='student')
     attendance_records: list['Attendance'] = Relationship(back_populates='student')
     refresh_sessions: list['RefreshSession'] = Relationship(back_populates='user')
+    email_notifications: list['EmailNotification'] = Relationship(
+        back_populates='user',
+    )
 
     roles: list['Role'] = Relationship(
         back_populates='users',

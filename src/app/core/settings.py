@@ -55,6 +55,22 @@ class RateLimitSettings(BaseSettings):
     auth_limit: str = '10/minute'
 
 
+class EmailSettings(BaseSettings):
+    mail_username: str
+    mail_password: str
+    mail_from: str
+    mail_server: str = 'smtp.gmail.com'
+    mail_port: int = 587
+    mail_from_name: str = 'Dashboard ITIS'
+    mail_starttls: bool = True
+    mail_ssl_tls: bool = False
+    use_credentials: bool = True
+    validate_certs: bool = True
+    template_folder: str = 'app/templates/email'
+    app_host: str = 'http://localhost:8000'
+    confirmation_code_lifetime_minutes: int = 30
+
+
 class AuthSettings(BaseSettings):
     secret_key: str
     algorithm: str = 'HS256'
@@ -91,6 +107,7 @@ class Settings(BaseSettings):
     admin: AdminSettings
     cors: CORSSettings
     rate_limit: RateLimitSettings
+    email: EmailSettings
 
 
 @lru_cache

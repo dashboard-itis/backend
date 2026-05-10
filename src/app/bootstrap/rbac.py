@@ -76,7 +76,10 @@ class RBACBootstrapper:
                 first_name=settings.admin.first_name,
                 last_name=settings.admin.last_name,
                 password_hash=hash_password(settings.admin.password),
+                is_confirmed=True,
             )
+        elif not admin.is_confirmed:
+            admin.is_confirmed = True
 
         admin.roles = [admin_role]
         await self.user_repo.save(admin)

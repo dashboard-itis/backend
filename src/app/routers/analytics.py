@@ -1,10 +1,15 @@
 from fastapi import APIRouter, Security
 
+from app.core.error_responses import COMMON_ERROR_RESPONSES
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import AnalyticsServiceDep
 from app.schemas.analytics import GroupAnalytics
 
-router = APIRouter(prefix='/groups', tags=['Analytics'])
+router = APIRouter(
+    prefix='/groups',
+    tags=['Analytics'],
+    responses=COMMON_ERROR_RESPONSES,
+)
 
 
 @router.get(

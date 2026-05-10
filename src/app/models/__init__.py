@@ -2,6 +2,7 @@ from app.models.assignment import Assignment
 from app.models.attendance import Attendance
 from app.models.base import BaseModel
 from app.models.course import Course, CourseCreate, CoursePublic, CourseUpdate
+from app.models.email_notification import EmailNotification
 from app.models.grade import Grade
 from app.models.group import Group, GroupCreate, GroupPublic, GroupUpdate
 from app.models.import_source import ImportSource
@@ -22,6 +23,7 @@ __all__ = [
     'CourseCreate',
     'CoursePublic',
     'CourseUpdate',
+    'EmailNotification',
     'Grade',
     'Group',
     'GroupCreate',
