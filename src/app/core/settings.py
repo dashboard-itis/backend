@@ -89,8 +89,8 @@ class Settings(BaseSettings):
     auth: AuthSettings
     rbac: RBACSettings
     admin: AdminSettings
-    cors: CORSSettings = {}
-    rate_limit: RateLimitSettings = {}
+    cors: CORSSettings
+    rate_limit: RateLimitSettings
 
 
 @lru_cache
