@@ -1,8 +1,9 @@
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 
+from app.core.exceptions import UnauthorizedError
 from app.core.rbac import PERMISSION_DESCRIPTIONS
 from app.dependencies.services import AuthServiceDep
 from app.models.user import UserPublic
@@ -30,10 +31,9 @@ async def get_current_user(
         if security_scopes.scopes:
             authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
 
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Invalid token or not enough permissions',
-            headers={'WWW-Authenticate': authenticate_value},
+        raise UnauthorizedError(
+            'Invalid token or not enough permissions',
+            details={'WWW-Authenticate': authenticate_value},
         )
 
     return user

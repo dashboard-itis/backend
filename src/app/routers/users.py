@@ -1,7 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Security, status
+from fastapi import APIRouter, Depends, Security, status
 
+from app.core.error_responses import COMMON_ERROR_RESPONSES
+from app.core.exceptions import BadRequestError, NotFoundError
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import UserServiceDep
 from app.models.user import UserCreate, UserPublic, UserUpdate
@@ -9,7 +11,11 @@ from app.schemas.base import PaginatedResponse
 from app.schemas.user_filters import UserFilters
 from app.schemas.user_roles import UserRolesUpdate
 
-router = APIRouter(prefix='/users', tags=['Users'])
+router = APIRouter(
+    prefix='/users',
+    tags=['Users'],
+    responses=COMMON_ERROR_RESPONSES,
+)
 
 UserFiltersDep = Annotated[UserFilters, Depends()]
 
@@ -35,10 +41,7 @@ async def get_user(user_id: int, service: UserServiceDep):
     user = await service.get_by_id(user_id)
 
     if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found',
-        )
+        raise NotFoundError('User not found')
 
     return user
 
@@ -53,10 +56,7 @@ async def create_user(user_data: UserCreate, service: UserServiceDep):
     try:
         return await service.create(user_data)
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exc),
-        ) from exc
+        raise BadRequestError(str(exc)) from exc
 
 
 @router.put(
@@ -72,10 +72,7 @@ async def update_user(
     user = await service.update(user_id, user_data)
 
     if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found',
-        )
+        raise NotFoundError('User not found')
 
     return user
 
@@ -96,16 +93,10 @@ async def update_user_roles(
             role_names=roles_data.roles,
         )
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exc),
-        ) from exc
+        raise BadRequestError(str(exc)) from exc
 
     if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found',
-        )
+        raise NotFoundError('User not found')
 
     return user
 
@@ -119,7 +110,4 @@ async def delete_user(user_id: int, service: UserServiceDep):
     deleted = await service.delete(user_id)
 
     if not deleted:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found',
-        )
+        raise NotFoundError('User not found')

@@ -1,14 +1,20 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Security, status
+from fastapi import APIRouter, Depends, Security, status
 
+from app.core.error_responses import COMMON_ERROR_RESPONSES
+from app.core.exceptions import BadRequestError, NotFoundError
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import GroupServiceDep
 from app.models.group import GroupCreate, GroupPublic, GroupUpdate
 from app.schemas.base import PaginatedResponse
 from app.schemas.group_filters import GroupFilters
 
-router = APIRouter(prefix='/groups', tags=['Groups'])
+router = APIRouter(
+    prefix='/groups',
+    tags=['Groups'],
+    responses=COMMON_ERROR_RESPONSES,
+)
 
 GroupFiltersDep = Annotated[GroupFilters, Depends()]
 
@@ -34,10 +40,7 @@ async def get_group(group_id: int, service: GroupServiceDep):
     group = await service.get_by_id(group_id)
 
     if group is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Group not found',
-        )
+        raise NotFoundError('Group not found')
 
     return group
 
@@ -52,10 +55,7 @@ async def create_group(group_data: GroupCreate, service: GroupServiceDep):
     try:
         return await service.create(group_data)
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exc),
-        ) from exc
+        raise BadRequestError(str(exc)) from exc
 
 
 @router.put(
@@ -71,10 +71,7 @@ async def update_group(
     group = await service.update(group_id, group_data)
 
     if group is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Group not found',
-        )
+        raise NotFoundError('Group not found')
 
     return group
 
@@ -88,7 +85,4 @@ async def delete_group(group_id: int, service: GroupServiceDep):
     deleted = await service.delete(group_id)
 
     if not deleted:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Group not found',
-        )
+        raise NotFoundError('Group not found')

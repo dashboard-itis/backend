@@ -1,14 +1,20 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Security, status
+from fastapi import APIRouter, Depends, Security, status
 
+from app.core.error_responses import COMMON_ERROR_RESPONSES
+from app.core.exceptions import NotFoundError
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import CourseServiceDep
 from app.models.course import CourseCreate, CoursePublic, CourseUpdate
 from app.schemas.base import PaginatedResponse
 from app.schemas.course_filters import CourseFilters
 
-router = APIRouter(prefix='/courses', tags=['Courses'])
+router = APIRouter(
+    prefix='/courses',
+    tags=['Courses'],
+    responses=COMMON_ERROR_RESPONSES,
+)
 
 CourseFiltersDep = Annotated[CourseFilters, Depends()]
 
@@ -34,10 +40,7 @@ async def get_course(course_id: int, service: CourseServiceDep):
     course = await service.get_by_id(course_id)
 
     if course is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Course not found',
-        )
+        raise NotFoundError('Course not found')
 
     return course
 
@@ -68,10 +71,7 @@ async def update_course(
     course = await service.update(course_id, course_data)
 
     if course is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Course not found',
-        )
+        raise NotFoundError('Course not found')
 
     return course
 
@@ -85,7 +85,4 @@ async def delete_course(course_id: int, service: CourseServiceDep):
     deleted = await service.delete(course_id)
 
     if not deleted:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Course not found',
-        )
+        raise NotFoundError('Course not found')

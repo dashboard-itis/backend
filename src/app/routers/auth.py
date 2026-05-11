@@ -2,9 +2,9 @@ from typing import Annotated
 
 from fastapi import (
     APIRouter,
+    BackgroundTasks,
     Cookie,
     Depends,
-    HTTPException,
     Request,
     Response,
     Security,
@@ -12,19 +12,29 @@ from fastapi import (
 )
 from fastapi.security import OAuth2PasswordRequestForm
 
+from app.core.error_responses import AUTH_ERROR_RESPONSES
+from app.core.exceptions import UnauthorizedError
 from app.core.rate_limit import limiter
 from app.core.settings import settings
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import AuthServiceDep
 from app.models.user import UserPublic
 from app.schemas.auth import (
+    ConfirmAccountRequest,
     LogoutResponse,
+    MessageResponse,
+    PasswordResetConfirmRequest,
+    PasswordResetRequest,
     RegisterRequest,
     RegisterResponse,
     TokenResponse,
 )
 
-router = APIRouter(prefix='/auth', tags=['Auth'])
+router = APIRouter(
+    prefix='/auth',
+    tags=['Auth'],
+    responses=AUTH_ERROR_RESPONSES,
+)
 
 REFRESH_TOKEN_COOKIE_NAME = 'refresh_token'
 
@@ -43,21 +53,10 @@ RefreshTokenCookie = Annotated[
 async def register(
     request: Request,  # noqa: ARG001
     data: RegisterRequest,
+    background_tasks: BackgroundTasks,
     auth_service: AuthServiceDep,
 ):
-    try:
-        is_registered = await auth_service.register(data)
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(exc),
-        ) from exc
-
-    if not is_registered:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail='User with this email already exists',
-        )
+    await auth_service.register(data, background_tasks)
 
     return RegisterResponse(success=True)
 
@@ -74,12 +73,6 @@ async def login(
         email=form_data.username,
         password=form_data.password,
     )
-
-    if tokens is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Incorrect email or password',
-        )
 
     response.set_cookie(
         key=REFRESH_TOKEN_COOKIE_NAME,
@@ -112,18 +105,12 @@ async def refresh(
     refresh_token: RefreshTokenCookie = None,
 ):
     if refresh_token is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Refresh token is missing',
-        )
+        raise UnauthorizedError('Refresh token is missing')
 
     tokens = await auth_service.refresh_tokens(refresh_token)
 
     if tokens is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Invalid refresh token',
-        )
+        raise UnauthorizedError('Invalid refresh token')
 
     response.set_cookie(
         key=REFRESH_TOKEN_COOKIE_NAME,
@@ -135,6 +122,49 @@ async def refresh(
     )
 
     return tokens
+
+
+@router.post('/confirm-account', response_model=MessageResponse)
+async def confirm_account(
+    data: ConfirmAccountRequest,
+    auth_service: AuthServiceDep,
+):
+    await auth_service.confirm_account(user_id=data.user_id, code=data.code)
+    return MessageResponse(success=True, message='Account confirmed')
+
+
+@router.post('/password-reset/request', response_model=MessageResponse)
+@limiter.limit(settings.rate_limit.auth_limit)
+async def request_password_reset(
+    request: Request,  # noqa: ARG001
+    data: PasswordResetRequest,
+    background_tasks: BackgroundTasks,
+    auth_service: AuthServiceDep,
+):
+    await auth_service.request_password_reset(
+        email=str(data.email),
+        background_tasks=background_tasks,
+    )
+    return MessageResponse(
+        success=True,
+        message='If the email exists, confirmation code was sent',
+    )
+
+
+@router.post('/password-reset/confirm', response_model=MessageResponse)
+@limiter.limit(settings.rate_limit.auth_limit)
+async def confirm_password_reset(
+    request: Request,  # noqa: ARG001
+    data: PasswordResetConfirmRequest,
+    auth_service: AuthServiceDep,
+):
+    await auth_service.confirm_password_reset(
+        user_id=data.user_id,
+        code=data.code,
+        password=data.password,
+        password_confirm=data.password_confirm,
+    )
+    return MessageResponse(success=True, message='Password changed')
 
 
 @router.post('/logout', response_model=LogoutResponse)

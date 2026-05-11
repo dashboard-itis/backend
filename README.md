@@ -83,6 +83,19 @@ Create `.env` file in the `src` directory.
 | RBAC__PUBLIC_ROLE | string | Public role name for new users | public |
 | RBAC__STUDENT_ROLE | string | Student role name | student |
 | RBAC__CURATOR_ROLE | string | Curator role name | curator |
+| EMAIL__MAIL_USERNAME | string | SMTP username |  |
+| EMAIL__MAIL_PASSWORD | string | SMTP app password |  |
+| EMAIL__MAIL_FROM | string | Sender email address |  |
+| EMAIL__MAIL_SERVER | string | SMTP server host | smtp.gmail.com |
+| EMAIL__MAIL_PORT | int | SMTP server port | 587 |
+| EMAIL__MAIL_FROM_NAME | string | Sender display name | Dashboard ITIS |
+| EMAIL__MAIL_STARTTLS | bool | Use STARTTLS | true |
+| EMAIL__MAIL_SSL_TLS | bool | Use SSL/TLS | false |
+| EMAIL__USE_CREDENTIALS | bool | Use SMTP auth credentials | true |
+| EMAIL__VALIDATE_CERTS | bool | Validate SMTP certificates | true |
+| EMAIL__TEMPLATE_FOLDER | string | Email templates path | app/templates/email |
+| EMAIL__APP_HOST | string | Backend host for confirmation links | http://localhost:8000 |
+| EMAIL__CONFIRMATION_CODE_LIFETIME_MINUTES | int | Email confirmation code lifetime | 30 |
 
 ---
 

@@ -2,7 +2,7 @@
 name = "backend"
 version = "0.1.0"
 description = "Add your description here"
-readme = "README.md"
+readme = "../README.md"
 requires-python = ">=3.13"
 dependencies = [
     "alembic>=1.18.4",
@@ -10,6 +10,7 @@ dependencies = [
     "cryptography>=47.0.0",
     "email-validator>=2.3.0",
     "fastapi>=0.135.1",
+    "fastapi-mail>=1.5.0",
     "greenlet>=3.3.2",
     "gunicorn>=23.0.0",
     "pwdlib[argon2,bcrypt]>=0.3.0",
