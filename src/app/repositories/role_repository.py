@@ -33,6 +33,9 @@ class RoleRepository(Repository[Role]):
         role = await self.get_by_name(name)
 
         if role is None:
-            role = await self.create(name=name)
+            await self.create(name=name)
+            role = await self.get_by_name(name)
 
+        if role is None:
+            raise RuntimeError(f'Role {name} was not created')
         return role

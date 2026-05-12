@@ -1,0 +1,77 @@
+x-back-image: &back-image ${BACKEND_IMAGE:-adel16055/dashboard-itis-backend:latest}
+
+x-back-common: &back-common
+  image: *back-image
+  env_file:
+    - .env
+  environment:
+    DB__HOST: db
+  networks:
+    - backend
+
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: ${DB__NAME}
+      POSTGRES_USER: ${DB__USER}
+      POSTGRES_PASSWORD: ${DB__PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - backend
+
+  migrations:
+    <<: *back-common
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  rbac:
+    <<: *back-common
+    command: ["python", "init.py"]
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+    restart: "no"
+
+  api:
+    <<: *back-common
+    command: ["gunicorn", "app.main:app", "-c", "gunicorn_config.py"]
+    depends_on:
+      rbac:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  reverse-proxy:
+    image: nginx:stable-alpine
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/html:/var/www/html:ro
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+
+networks:
+  backend:
+    driver: bridge

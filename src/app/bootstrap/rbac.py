@@ -71,15 +71,19 @@ class RBACBootstrapper:
         admin = await self.user_repo.get_by_email(settings.admin.email)
 
         if admin is None:
-            admin = await self.user_repo.create(
+            await self.user_repo.create(
                 email=settings.admin.email,
                 first_name=settings.admin.first_name,
                 last_name=settings.admin.last_name,
                 password_hash=hash_password(settings.admin.password),
                 is_confirmed=True,
             )
+            admin = await self.user_repo.get_by_email(settings.admin.email)
         elif not admin.is_confirmed:
             admin.is_confirmed = True
+
+        if admin is None:
+            raise RuntimeError('Admin user was not created')
 
         admin.roles = [admin_role]
         await self.user_repo.save(admin)
