@@ -56,6 +56,28 @@ Initialize RBAC data:
 
 uv run init.py
 
+Docker image build:
+
+```bash
+docker build -t adel16055/dashboard-itis-backend:latest .
+docker push adel16055/dashboard-itis-backend:latest
+```
+
+Docker Compose start for frontend developers:
+
+```bash
+cd src
+cp .env.example .env
+docker compose up
+```
+
+Compose uses the backend image from `BACKEND_IMAGE` and does not build services locally.
+Only port `80` is exposed outside the compose network:
+- frontend/static entrypoint: `http://localhost`
+- API proxy prefix: `http://localhost/api/v1`
+
+Database, migrations, RBAC initialization and API stay inside the compose network.
+
 
 ## Environment Variables
 
