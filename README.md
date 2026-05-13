@@ -56,6 +56,40 @@ Initialize RBAC data:
 
 uv run init.py
 
+Docker image build:
+
+```bash
+docker build -t adel16055/dashboard-itis-backend:latest .
+docker push adel16055/dashboard-itis-backend:latest
+```
+
+Docker Compose start for frontend developers:
+
+```bash
+cd src
+cp .env.example .env
+docker compose up
+```
+
+Before starting, fill required values in `src/.env`, especially
+`AUTH__SECRET_KEY`, `DB__USER`, `DB__PASSWORD`, `DB__NAME` and email settings.
+
+Compose uses only images from DockerHub and does not build services locally:
+- backend image is taken from `BACKEND_IMAGE`
+- frontend image for deployment is declared as `FRONTEND_IMAGE`
+- database image is `postgres:18`
+- reverse proxy image is `nginx:stable-alpine`
+
+Only port `80` is exposed outside the compose network. Database, migrations,
+RBAC initialization and API stay inside the internal Docker network.
+
+Available local URLs:
+- frontend/static entrypoint: `http://localhost`
+- API proxy prefix: `http://localhost/api/v1`
+
+The API container listens on `0.0.0.0:8000`; nginx proxies `/api/*` requests to
+the API service and serves `nginx/html/index.html` for other paths.
+
 
 ## Environment Variables
 
