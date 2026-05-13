@@ -71,12 +71,24 @@ cp .env.example .env
 docker compose up
 ```
 
-Compose uses the backend image from `BACKEND_IMAGE` and does not build services locally.
-Only port `80` is exposed outside the compose network:
+Before starting, fill required values in `src/.env`, especially
+`AUTH__SECRET_KEY`, `DB__USER`, `DB__PASSWORD`, `DB__NAME` and email settings.
+
+Compose uses only images from DockerHub and does not build services locally:
+- backend image is taken from `BACKEND_IMAGE`
+- frontend image for deployment is declared as `FRONTEND_IMAGE`
+- database image is `postgres:18`
+- reverse proxy image is `nginx:stable-alpine`
+
+Only port `80` is exposed outside the compose network. Database, migrations,
+RBAC initialization and API stay inside the internal Docker network.
+
+Available local URLs:
 - frontend/static entrypoint: `http://localhost`
 - API proxy prefix: `http://localhost/api/v1`
 
-Database, migrations, RBAC initialization and API stay inside the compose network.
+The API container listens on `0.0.0.0:8000`; nginx proxies `/api/*` requests to
+the API service and serves `nginx/html/index.html` for other paths.
 
 
 ## Environment Variables

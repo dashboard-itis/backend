@@ -1,4 +1,5 @@
 x-back-image: &back-image ${BACKEND_IMAGE:-adel16055/dashboard-itis-backend:latest}
+x-front-image: &front-image ${FRONTEND_IMAGE:-nginx:stable-alpine}
 
 x-back-common: &back-common
   image: *back-image
@@ -6,12 +7,12 @@ x-back-common: &back-common
     - .env
   environment:
     DB__HOST: db
-  networks:
-    - backend
 
 services:
   db:
     image: postgres:18
+    env_file:
+      - .env
     environment:
       POSTGRES_DB: ${DB__NAME}
       POSTGRES_USER: ${DB__USER}
@@ -24,8 +25,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-    networks:
-      - backend
 
   migrations:
     <<: *back-common
@@ -57,7 +56,7 @@ services:
       start_period: 15s
 
   reverse-proxy:
-    image: nginx:stable-alpine
+    image: *front-image
     depends_on:
       api:
         condition: service_healthy
@@ -66,12 +65,6 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/html:/var/www/html:ro
-    networks:
-      - backend
 
 volumes:
   postgres_data:
-
-networks:
-  backend:
-    driver: bridge

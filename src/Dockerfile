@@ -1,6 +1,6 @@
 FROM ghcr.io/astral-sh/uv:0.11.1 AS uv
 
-FROM python:3.13-slim-bookworm AS builder
+FROM python:3.13-slim AS builder
 
 COPY --from=uv /uv /uvx /bin/
 
@@ -15,11 +15,7 @@ COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-project
 
-COPY . .
-
-FROM python:3.13-slim-bookworm AS runtime
-
-COPY --from=uv /uv /uvx /bin/
+FROM python:3.13-slim AS runtime
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl \
@@ -28,15 +24,14 @@ RUN apt-get update \
     && useradd --system --gid app --home-dir /app app
 
 ENV PATH="/app/.venv/bin:$PATH" \
-    PYTHONUNBUFFERED=1 \
-    UV_COMPILE_BYTECODE=1 \
-    UV_LINK_MODE=copy \
-    UV_PYTHON_DOWNLOADS=never \
-    UV_PROJECT_ENVIRONMENT=/app/.venv
+    PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY --from=builder --chown=app:app /app /app
+COPY --from=builder --chown=app:app /app/.venv /app/.venv
+COPY --chown=app:app alembic.ini gunicorn_config.py init.py pyproject.toml ./
+COPY --chown=app:app app ./app
+COPY --chown=app:app migrations ./migrations
 
 USER app
 
