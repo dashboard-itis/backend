@@ -43,6 +43,7 @@ class User(UserBase, BaseModel, table=True):
     roles: list['Role'] = Relationship(
         back_populates='users',
         link_model=UserRoleLink,
+        sa_relationship_kwargs={'lazy': 'selectin'},
     )
 
 

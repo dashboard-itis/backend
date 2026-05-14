@@ -29,6 +29,7 @@ class Permission(PermissionBase, BaseModel, table=True):
     roles: list['Role'] = Relationship(
         back_populates='permissions',
         link_model=RolePermissionLink,
+        sa_relationship_kwargs={'lazy': 'selectin'},
     )
 
 
