@@ -21,10 +21,12 @@ class Role(RoleBase, BaseModel, table=True):
     users: list['User'] = Relationship(
         back_populates='roles',
         link_model=UserRoleLink,
+        sa_relationship_kwargs={'lazy': 'selectin'},
     )
     permissions: list['Permission'] = Relationship(
         back_populates='roles',
         link_model=RolePermissionLink,
+        sa_relationship_kwargs={'lazy': 'selectin'},
     )
 
 
