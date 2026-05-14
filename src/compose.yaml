@@ -1,4 +1,4 @@
-x-back-image: &back-image ${BACKEND_IMAGE:-adel16055/dashboard-itis-backend:latest}
+x-back-image: &back-image ${BACKEND_IMAGE:-adel160505/dashboard-itis-backend:latest}
 x-front-image: &front-image ${FRONTEND_IMAGE:-nginx:stable-alpine}
 
 x-back-common: &back-common
