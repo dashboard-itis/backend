@@ -24,26 +24,26 @@ class UserService:
             filters=db_filters,
             search=filters.search,
         )
-        users = await self.user_repo.fetch(
+        users = await self.user_repo.fetch_with_roles(
             skip=filters.skip,
             limit=filters.limit,
             filters=db_filters,
             search=filters.search,
         )
         return PaginatedResponse[UserPublic](
-            items=[UserPublic.model_validate(user) for user in users],
+            items=[UserPublic.from_user(user) for user in users],
             total=total,
             skip=filters.skip,
             limit=filters.limit,
         )
 
     async def get_by_id(self, user_id: int) -> UserPublic | None:
-        user = await self.user_repo.get(user_id)
-        return UserPublic.model_validate(user) if user else None
+        user = await self.user_repo.get_with_roles(user_id)
+        return UserPublic.from_user(user) if user else None
 
     async def get_by_email(self, email: str) -> UserPublic | None:
         user = await self.user_repo.get_by_email(email)
-        return UserPublic.model_validate(user) if user else None
+        return UserPublic.from_user(user) if user else None
 
     async def create(self, user_data: UserCreate) -> UserPublic:
         existing = await self.get_by_email(user_data.email)
@@ -55,7 +55,8 @@ class UserService:
         create_data['password_hash'] = hash_password(user_data.password)
 
         user = await self.user_repo.create(**create_data)
-        return UserPublic.model_validate(user)
+        user_with_roles = await self.user_repo.get_with_roles(user.id)
+        return UserPublic.from_user(user_with_roles or user)
 
     async def update(self, user_id: int, user_data: UserUpdate) -> UserPublic | None:
         update_data = user_data.model_dump(exclude_unset=True)
@@ -64,7 +65,12 @@ class UserService:
             update_data['password_hash'] = hash_password(update_data.pop('password'))
 
         user = await self.user_repo.update(user_id, **update_data)
-        return UserPublic.model_validate(user) if user else None
+
+        if user is None:
+            return None
+
+        user_with_roles = await self.user_repo.get_with_roles(user.id)
+        return UserPublic.from_user(user_with_roles or user)
 
     async def update_roles(
         self,
@@ -85,8 +91,9 @@ class UserService:
 
         user.roles = roles
         updated_user = await self.user_repo.save(user)
+        user_with_roles = await self.user_repo.get_with_roles(updated_user.id)
 
-        return UserPublic.model_validate(updated_user)
+        return UserPublic.from_user(user_with_roles or updated_user)
 
     async def delete(self, user_id: int) -> bool:
         user = await self.user_repo.delete(user_id)

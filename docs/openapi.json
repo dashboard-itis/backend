@@ -2720,6 +2720,21 @@
               "type": "integer",
               "title": "Group Id"
             }
+          },
+          {
+            "name": "trend_period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "week",
+                "month",
+                "semester"
+              ],
+              "type": "string",
+              "default": "semester",
+              "title": "Trend Period"
+            }
           }
         ],
         "responses": {
@@ -2729,6 +2744,130 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GroupAnalytics"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/students/{student_id}/analytics": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Student Analytics",
+        "operationId": "get_student_analytics_api_v1_students__student_id__analytics_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": [
+              "analytics:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "student_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Student Id"
+            }
+          },
+          {
+            "name": "trend_period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "week",
+                "month",
+                "semester"
+              ],
+              "type": "string",
+              "default": "semester",
+              "title": "Trend Period"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentAnalytics"
                 }
               }
             }
@@ -3641,6 +3780,32 @@
         ],
         "title": "RegisterResponse"
       },
+      "StudentAnalytics": {
+        "properties": {
+          "student_id": {
+            "type": "integer",
+            "title": "Student Id"
+          },
+          "average_score": {
+            "type": "number",
+            "title": "Average Score"
+          },
+          "trend": {
+            "items": {
+              "$ref": "#/components/schemas/TrendPoint"
+            },
+            "type": "array",
+            "title": "Trend"
+          }
+        },
+        "type": "object",
+        "required": [
+          "student_id",
+          "average_score",
+          "trend"
+        ],
+        "title": "StudentAnalytics"
+      },
       "StudentGradeResponse": {
         "properties": {
           "id": {
@@ -3872,6 +4037,13 @@
             "type": "boolean",
             "title": "Is Confirmed",
             "default": false
+          },
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Roles"
           }
         },
         "type": "object",

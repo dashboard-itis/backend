@@ -39,6 +39,20 @@ class UserRepository(Repository[User]):
         )
         return result.first()
 
+    async def fetch_with_roles(
+        self,
+        filters: dict | None = None,
+        skip: int = 0,
+        limit: int = 100,
+        search: str | None = None,
+    ) -> list[User]:
+        query = select(User).options(selectinload(User.roles))
+        query = self._apply_filters(query, filters=filters, search=search)
+        query = query.offset(skip).limit(limit)
+
+        result = await self.session.exec(query)
+        return list(result.all())
+
     async def add_role(self, user: User, role: Role) -> User:
         if all(existing_role.id != role.id for existing_role in user.roles):
             user.roles.append(role)

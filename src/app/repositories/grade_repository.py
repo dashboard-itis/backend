@@ -1,3 +1,5 @@
+from typing import Literal
+
 from sqlalchemy import func
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
@@ -8,6 +10,8 @@ from app.models.course import Course
 from app.models.grade import Grade
 from app.models.stream import Stream
 from app.repositories.base import Repository
+
+TrendPeriod = Literal['week', 'month', 'semester']
 
 GRADE_A_MIN_SCORE = 90
 GRADE_B_MIN_SCORE = 75
@@ -79,29 +83,119 @@ class GradeRepository(Repository[Grade]):
 
         return distribution
 
-    async def get_group_trend(self, group_id: int) -> list[dict]:
-        result = await self.session.exec(
-            select(
-                Stream.semester,
-                Stream.year,
-                func.avg(Grade.score),
+    def _date_trunc_period(self, trend_period: TrendPeriod):
+        if trend_period == 'month':
+            return func.date_trunc('month', Grade.created_at)
+
+        return func.date_trunc('week', Grade.created_at)
+
+    def _format_trend_period(self, period, trend_period: TrendPeriod) -> str:
+        if trend_period == 'month':
+            return period.strftime('%Y-%m')
+
+        return f'{period.isocalendar().year}-W{period.isocalendar().week:02d}'
+
+    async def get_group_trend(
+        self,
+        group_id: int,
+        trend_period: TrendPeriod = 'semester',
+    ) -> list[dict]:
+        if trend_period == 'semester':
+            result = await self.session.exec(
+                select(
+                    Stream.semester,
+                    Stream.year,
+                    func.avg(Grade.score),
+                )
+                .join(Course, Course.stream_id == Stream.id)
+                .join(Assignment, Assignment.course_id == Course.id)
+                .join(Grade, Grade.assignment_id == Assignment.id)
+                .where(Stream.group_id == group_id)
+                .group_by(Stream.year, Stream.semester)
+                .order_by(Stream.year, Stream.semester)
             )
-            .join(Course, Course.stream_id == Stream.id)
-            .join(Assignment, Assignment.course_id == Course.id)
-            .join(Grade, Grade.assignment_id == Assignment.id)
-            .where(Stream.group_id == group_id)
-            .group_by(Stream.year, Stream.semester)
-            .order_by(Stream.year, Stream.semester)
-        )
 
-        trend = []
-
-        for semester, year, average_score in result.all():
-            trend.append(
+            return [
                 {
                     'period': f'{semester} семестр {year}',
                     'average_score': round(float(average_score or 0), 2),
                 }
+                for semester, year, average_score in result.all()
+            ]
+
+        period = self._date_trunc_period(trend_period)
+        result = await self.session.exec(
+            select(
+                period.label('period'),
+                func.avg(Grade.score),
+            )
+            .join(Assignment, Grade.assignment_id == Assignment.id)
+            .join(Course, Assignment.course_id == Course.id)
+            .join(Stream, Course.stream_id == Stream.id)
+            .where(Stream.group_id == group_id)
+            .group_by(period)
+            .order_by(period)
+        )
+
+        return [
+            {
+                'period': self._format_trend_period(period_value, trend_period),
+                'average_score': round(float(average_score or 0), 2),
+            }
+            for period_value, average_score in result.all()
+        ]
+
+    async def get_student_average_score(self, student_id: int) -> float:
+        result = await self.session.exec(
+            select(func.avg(Grade.score)).where(Grade.student_id == student_id)
+        )
+
+        average = result.one_or_none()
+        return float(average or 0)
+
+    async def get_student_trend(
+        self,
+        student_id: int,
+        trend_period: TrendPeriod = 'semester',
+    ) -> list[dict]:
+        if trend_period == 'semester':
+            result = await self.session.exec(
+                select(
+                    Stream.semester,
+                    Stream.year,
+                    func.avg(Grade.score),
+                )
+                .join(Assignment, Grade.assignment_id == Assignment.id)
+                .join(Course, Assignment.course_id == Course.id)
+                .join(Stream, Course.stream_id == Stream.id)
+                .where(Grade.student_id == student_id)
+                .group_by(Stream.year, Stream.semester)
+                .order_by(Stream.year, Stream.semester)
             )
 
-        return trend
+            return [
+                {
+                    'period': f'{semester} семестр {year}',
+                    'average_score': round(float(average_score or 0), 2),
+                }
+                for semester, year, average_score in result.all()
+            ]
+
+        period = self._date_trunc_period(trend_period)
+        result = await self.session.exec(
+            select(
+                period.label('period'),
+                func.avg(Grade.score),
+            )
+            .where(Grade.student_id == student_id)
+            .group_by(period)
+            .order_by(period)
+        )
+
+        return [
+            {
+                'period': self._format_trend_period(period_value, trend_period),
+                'average_score': round(float(average_score or 0), 2),
+            }
+            for period_value, average_score in result.all()
+        ]

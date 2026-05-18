@@ -1,4 +1,9 @@
+from typing import Literal
+
 from pydantic import BaseModel
+
+
+TrendPeriod = Literal['week', 'month', 'semester']
 
 
 class TrendPoint(BaseModel):
@@ -18,6 +23,4 @@ class GroupAnalytics(BaseModel):
 class StudentAnalytics(BaseModel):
     student_id: int
     average_score: float
-    rank: int | None = None
-    attendance_rate: float
-    submission_rate: float
+    trend: list[TrendPoint]
