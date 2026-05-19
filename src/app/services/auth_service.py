@@ -295,12 +295,12 @@ class AuthService:
             if not scopes_are_valid:
                 return None
 
-        user = await self.user_repo.get(token_data.user_id)
+        user = await self.user_repo.get_with_roles(token_data.user_id)
 
         if user is None:
             return None
 
-        return UserPublic.model_validate(user)
+        return UserPublic.from_user(user)
 
     async def refresh_tokens(self, refresh_token: str) -> TokenResponse | None:
         token_data = decode_jwt_token(refresh_token)

@@ -3,7 +3,7 @@ from app.dependencies.repositories import (
     GradeRepositoryDep,
     SubmissionRepositoryDep,
 )
-from app.schemas.analytics import GroupAnalytics
+from app.schemas.analytics import GroupAnalytics, StudentAnalytics, TrendPeriod
 
 
 class AnalyticsService:
@@ -17,10 +17,14 @@ class AnalyticsService:
         self.attendance_repo = attendance_repo
         self.submission_repo = submission_repo
 
-    async def get_group_analytics(self, group_id: int) -> GroupAnalytics:
+    async def get_group_analytics(
+        self,
+        group_id: int,
+        trend_period: TrendPeriod = 'semester',
+    ) -> GroupAnalytics:
         average_score = await self.grade_repo.get_group_average_score(group_id)
         distribution = await self.grade_repo.get_group_grade_distribution(group_id)
-        trend = await self.grade_repo.get_group_trend(group_id)
+        trend = await self.grade_repo.get_group_trend(group_id, trend_period)
         attendance_rate = await self.attendance_repo.get_group_attendance_rate(group_id)
         submission_rate = await self.submission_repo.get_group_submission_rate(group_id)
 
@@ -30,5 +34,19 @@ class AnalyticsService:
             submission_rate=submission_rate,
             attendance_rate=attendance_rate,
             distribution=distribution,
+            trend=trend,
+        )
+
+    async def get_student_analytics(
+        self,
+        student_id: int,
+        trend_period: TrendPeriod = 'semester',
+    ) -> StudentAnalytics:
+        average_score = await self.grade_repo.get_student_average_score(student_id)
+        trend = await self.grade_repo.get_student_trend(student_id, trend_period)
+
+        return StudentAnalytics(
+            student_id=student_id,
+            average_score=round(average_score, 2),
             trend=trend,
         )

@@ -60,4 +60,10 @@ class UserUpdate(SQLModel):
 
 
 class UserPublic(UserBase, BaseModel):
-    pass
+    roles: list[str] = Field(default_factory=list)
+
+    @classmethod
+    def from_user(cls, user: User) -> 'UserPublic':
+        user_public = cls.model_validate(user)
+        user_public.roles = [role.name for role in user.roles]
+        return user_public
