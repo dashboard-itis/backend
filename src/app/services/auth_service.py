@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from secrets import randbelow
 from typing import Annotated
 
@@ -86,7 +86,7 @@ class AuthService:
             action=ACCOUNT_CONFIRMATION_ACTION,
         )
         confirmation_url = (
-            f'{settings.email.app_host}/api/v1/auth/confirm-account'
+            f'{settings.email.confirmation_url}'
             f'?user_id={user.id}&code={notification.code}'
         )
 
@@ -108,7 +108,7 @@ class AuthService:
         action: str,
     ) -> EmailNotification:
         code = str(randbelow(900000) + 100000)
-        expires_at = datetime.now(timezone.utc) + timedelta(
+        expires_at = datetime.utcnow() + timedelta(
             minutes=settings.email.confirmation_code_lifetime_minutes,
         )
         return await self.email_notification_repo.create(
@@ -164,7 +164,7 @@ class AuthService:
             user_id=user_with_roles.id,
             access_token_jti=access_data.jti,
             refresh_token_jti=refresh_data.jti,
-            expires_at=datetime.fromtimestamp(refresh_data.exp, tz=timezone.utc),
+            expires_at=datetime.utcfromtimestamp(refresh_data.exp),
             is_invalidated=False,
         )
 
@@ -200,6 +200,12 @@ class AuthService:
         if user is None:
             raise NotFoundError('User not found')
 
+        student_role = await self.role_repo.get_by_name(settings.rbac.student_role)
+
+        if student_role is None:
+            raise BadRequestError('Student role does not exist')
+
+        await self.user_repo.add_role(user, student_role)
         await self.email_notification_repo.update(notification.id, is_used=True)
 
         return True

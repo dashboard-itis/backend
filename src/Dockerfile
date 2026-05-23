@@ -1,6 +1,6 @@
 FROM ghcr.io/astral-sh/uv:0.11.1 AS uv
 
-FROM python:3.13-slim AS builder
+FROM python:3.13-slim-bookworm AS builder
 
 COPY --from=uv /uv /uvx /bin/
 
@@ -15,7 +15,7 @@ COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-project
 
-FROM python:3.13-slim AS runtime
+FROM python:3.13-slim-bookworm AS runtime
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl \
@@ -24,7 +24,8 @@ RUN apt-get update \
     && useradd --system --gid app --home-dir /app app
 
 ENV PATH="/app/.venv/bin:$PATH" \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    DISABLE_SQLALCHEMY_CEXT_RUNTIME=1
 
 WORKDIR /app
 
