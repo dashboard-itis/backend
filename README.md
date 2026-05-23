@@ -77,7 +77,7 @@ Before starting, fill required values in `src/.env`, especially
 Compose uses only images from DockerHub and does not build services locally:
 - backend image is taken from `BACKEND_IMAGE`
 - frontend image for deployment is declared as `FRONTEND_IMAGE`
-- database image is `postgres:18`
+- database image is `postgres:18-bookworm`
 - reverse proxy image is `nginx:stable-alpine`
 
 Only port `80` is exposed outside the compose network. Database, migrations,

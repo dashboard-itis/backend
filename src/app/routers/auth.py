@@ -124,6 +124,16 @@ async def refresh(
     return tokens
 
 
+@router.get('/confirm-account', response_model=MessageResponse)
+async def confirm_account_link(
+    user_id: int,
+    code: str,
+    auth_service: AuthServiceDep,
+):
+    await auth_service.confirm_account(user_id=user_id, code=code)
+    return MessageResponse(success=True, message='Account confirmed')
+
+
 @router.post('/confirm-account', response_model=MessageResponse)
 async def confirm_account(
     data: ConfirmAccountRequest,

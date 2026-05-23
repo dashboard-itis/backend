@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlmodel import select
 
@@ -23,7 +23,7 @@ class EmailNotificationRepository(Repository[EmailNotification]):
                 EmailNotification.action == action,
                 EmailNotification.code == code,
                 EmailNotification.is_used.is_(False),
-                EmailNotification.expires_at > datetime.now(timezone.utc),
+                EmailNotification.expires_at > datetime.utcnow(),
             )
         )
         return result.first()
