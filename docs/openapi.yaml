@@ -1,4 +1,3 @@
----
 openapi: 3.1.0
 info:
   title: Dashboard ITIS
@@ -7,7 +6,7 @@ info:
 servers:
 - url: http://localhost:8000
 paths:
-  "/api/v1/auth/register":
+  /api/v1/auth/register:
     post:
       tags:
       - Auth
@@ -17,7 +16,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RegisterRequest"
+              $ref: '#/components/schemas/RegisterRequest'
         required: true
       responses:
         '201':
@@ -25,44 +24,44 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/RegisterResponse"
+                $ref: '#/components/schemas/RegisterResponse'
         '400':
           description: Invalid auth request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Invalid credentials or token
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Account is not confirmed
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: User already exists
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/auth/login":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/auth/login:
     post:
       tags:
       - Auth
@@ -72,7 +71,7 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              "$ref": "#/components/schemas/Body_login_api_v1_auth_login_post"
+              $ref: '#/components/schemas/Body_login_api_v1_auth_login_post'
         required: true
       responses:
         '200':
@@ -80,44 +79,44 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/TokenResponse"
+                $ref: '#/components/schemas/TokenResponse'
         '400':
           description: Invalid auth request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Invalid credentials or token
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Account is not confirmed
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: User already exists
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/auth/me":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/auth/me:
     get:
       tags:
       - Auth
@@ -129,47 +128,47 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/UserPublic"
+                $ref: '#/components/schemas/UserPublic'
         '400':
           description: Invalid auth request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Invalid credentials or token
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Account is not confirmed
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: User already exists
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
       security:
       - OAuth2PasswordBearer:
         - auth:me
-  "/api/v1/auth/refresh":
+  /api/v1/auth/refresh:
     post:
       tags:
       - Auth
@@ -190,44 +189,44 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/TokenResponse"
+                $ref: '#/components/schemas/TokenResponse'
         '400':
           description: Invalid auth request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Invalid credentials or token
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Account is not confirmed
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: User already exists
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/auth/confirm-account":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/auth/confirm-account:
     get:
       tags:
       - Auth
@@ -252,43 +251,43 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/MessageResponse"
+                $ref: '#/components/schemas/MessageResponse'
         '400':
           description: Invalid auth request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Invalid credentials or token
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Account is not confirmed
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: User already exists
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
       - Auth
@@ -299,51 +298,51 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/ConfirmAccountRequest"
+              $ref: '#/components/schemas/ConfirmAccountRequest'
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/MessageResponse"
+                $ref: '#/components/schemas/MessageResponse'
         '400':
           description: Invalid auth request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Invalid credentials or token
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Account is not confirmed
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: User already exists
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/auth/password-reset/request":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/auth/password-reset/request:
     post:
       tags:
       - Auth
@@ -353,7 +352,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/PasswordResetRequest"
+              $ref: '#/components/schemas/PasswordResetRequest'
         required: true
       responses:
         '200':
@@ -361,44 +360,44 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/MessageResponse"
+                $ref: '#/components/schemas/MessageResponse'
         '400':
           description: Invalid auth request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Invalid credentials or token
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Account is not confirmed
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: User already exists
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/auth/password-reset/confirm":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/auth/password-reset/confirm:
     post:
       tags:
       - Auth
@@ -408,7 +407,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/PasswordResetConfirmRequest"
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
         required: true
       responses:
         '200':
@@ -416,44 +415,44 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/MessageResponse"
+                $ref: '#/components/schemas/MessageResponse'
         '400':
           description: Invalid auth request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Invalid credentials or token
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Account is not confirmed
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: User already exists
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/auth/logout":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/auth/logout:
     post:
       tags:
       - Auth
@@ -474,44 +473,44 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/LogoutResponse"
+                $ref: '#/components/schemas/LogoutResponse'
         '400':
           description: Invalid auth request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Invalid credentials or token
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Account is not confirmed
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: User already exists
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/users/":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/users/:
     get:
       tags:
       - Users
@@ -577,49 +576,49 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/PaginatedResponse_UserPublic_"
+                $ref: '#/components/schemas/PaginatedResponse_UserPublic_'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
       - Users
@@ -633,57 +632,57 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/UserCreate"
+              $ref: '#/components/schemas/UserCreate'
       responses:
         '201':
           description: Successful Response
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/UserPublic"
+                $ref: '#/components/schemas/UserPublic'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/users/{user_id}":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/users/{user_id}:
     get:
       tags:
       - Users
@@ -705,49 +704,49 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/UserPublic"
+                $ref: '#/components/schemas/UserPublic'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     put:
       tags:
       - Users
@@ -768,56 +767,56 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/UserUpdate"
+              $ref: '#/components/schemas/UserUpdate'
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/UserPublic"
+                $ref: '#/components/schemas/UserPublic'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     delete:
       tags:
       - Users
@@ -841,44 +840,44 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/users/{user_id}/roles":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/users/{user_id}/roles:
     put:
       tags:
       - Users
@@ -899,57 +898,57 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/UserRolesUpdate"
+              $ref: '#/components/schemas/UserRolesUpdate'
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/UserPublic"
+                $ref: '#/components/schemas/UserPublic'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/groups/":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/groups/:
     get:
       tags:
       - Groups
@@ -998,49 +997,49 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/PaginatedResponse_GroupPublic_"
+                $ref: '#/components/schemas/PaginatedResponse_GroupPublic_'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
       - Groups
@@ -1054,57 +1053,57 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/GroupCreate"
+              $ref: '#/components/schemas/GroupCreate'
       responses:
         '201':
           description: Successful Response
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/GroupPublic"
+                $ref: '#/components/schemas/GroupPublic'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/groups/{group_id}":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/groups/{group_id}:
     get:
       tags:
       - Groups
@@ -1126,49 +1125,49 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/GroupPublic"
+                $ref: '#/components/schemas/GroupPublic'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     put:
       tags:
       - Groups
@@ -1189,56 +1188,56 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/GroupUpdate"
+              $ref: '#/components/schemas/GroupUpdate'
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/GroupPublic"
+                $ref: '#/components/schemas/GroupPublic'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     delete:
       tags:
       - Groups
@@ -1262,44 +1261,44 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/courses/":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/courses/:
     get:
       tags:
       - Courses
@@ -1364,49 +1363,49 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/PaginatedResponse_CoursePublic_"
+                $ref: '#/components/schemas/PaginatedResponse_CoursePublic_'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
       - Courses
@@ -1420,57 +1419,57 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/CourseCreate"
+              $ref: '#/components/schemas/CourseCreate'
       responses:
         '201':
           description: Successful Response
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/CoursePublic"
+                $ref: '#/components/schemas/CoursePublic'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/courses/{course_id}":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/courses/{course_id}:
     get:
       tags:
       - Courses
@@ -1492,49 +1491,49 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/CoursePublic"
+                $ref: '#/components/schemas/CoursePublic'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     put:
       tags:
       - Courses
@@ -1555,56 +1554,56 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/CourseUpdate"
+              $ref: '#/components/schemas/CourseUpdate'
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/CoursePublic"
+                $ref: '#/components/schemas/CoursePublic'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     delete:
       tags:
       - Courses
@@ -1628,44 +1627,44 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/groups/{group_id}/analytics":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/groups/{group_id}/analytics:
     get:
       tags:
       - Analytics
@@ -1698,50 +1697,50 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/GroupAnalytics"
+                $ref: '#/components/schemas/GroupAnalytics'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/students/{student_id}/analytics":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/students/{student_id}/analytics:
     get:
       tags:
       - Analytics
@@ -1774,50 +1773,384 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/StudentAnalytics"
+                $ref: '#/components/schemas/StudentAnalytics'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/students/{student_id}/grades":
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/grades:
+    get:
+      tags:
+      - Grades
+      summary: Get Grades
+      operationId: get_grades_api_v1_grades_get
+      security:
+      - OAuth2PasswordBearer:
+        - grades:list
+      parameters:
+      - name: skip
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Skip
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 100
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_StudentGradeResponse_'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Grades
+      summary: Create Grade
+      operationId: create_grade_api_v1_grades_post
+      security:
+      - OAuth2PasswordBearer:
+        - grades:create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradeCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradePublic'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/grades/{grade_id}:
+    get:
+      tags:
+      - Grades
+      summary: Get Grade
+      operationId: get_grade_api_v1_grades__grade_id__get
+      security:
+      - OAuth2PasswordBearer:
+        - grades:read
+      parameters:
+      - name: grade_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Grade Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentGradeResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Grades
+      summary: Update Grade
+      operationId: update_grade_api_v1_grades__grade_id__put
+      security:
+      - OAuth2PasswordBearer:
+        - grades:update
+      parameters:
+      - name: grade_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Grade Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradeUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradePublic'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Grades
+      summary: Delete Grade
+      operationId: delete_grade_api_v1_grades__grade_id__delete
+      security:
+      - OAuth2PasswordBearer:
+        - grades:delete
+      parameters:
+      - name: grade_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Grade Id
+      responses:
+        '204':
+          description: Successful Response
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/students/{student_id}/grades:
     get:
       tags:
       - Grades
@@ -1856,50 +2189,50 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/PaginatedResponse_StudentGradeResponse_"
+                $ref: '#/components/schemas/PaginatedResponse_StudentGradeResponse_'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/health":
+                $ref: '#/components/schemas/ErrorResponse'
+  /health:
     get:
       summary: Health
       operationId: health_health_get
@@ -1916,7 +2249,7 @@ components:
         grant_type:
           anyOf:
           - type: string
-            pattern: "^password$"
+            pattern: ^password$
           - type: 'null'
           title: Grant Type
         username:
@@ -2071,6 +2404,93 @@ components:
       - code
       - message
       title: ErrorResponse
+    GradeCreate:
+      properties:
+        student_id:
+          type: integer
+          title: Student Id
+        assignment_id:
+          type: integer
+          title: Assignment Id
+        score:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Score
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+      type: object
+      required:
+      - student_id
+      - assignment_id
+      - score
+      title: GradeCreate
+    GradePublic:
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        student_id:
+          type: integer
+          title: Student Id
+        assignment_id:
+          type: integer
+          title: Assignment Id
+        score:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Score
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+      type: object
+      required:
+      - student_id
+      - assignment_id
+      - score
+      title: GradePublic
+    GradeUpdate:
+      properties:
+        student_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Student Id
+        assignment_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Assignment Id
+        score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Score
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+      type: object
+      title: GradeUpdate
     GroupAnalytics:
       properties:
         group_id:
@@ -2092,7 +2512,7 @@ components:
           title: Distribution
         trend:
           items:
-            "$ref": "#/components/schemas/TrendPoint"
+            $ref: '#/components/schemas/TrendPoint'
           type: array
           title: Trend
       type: object
@@ -2189,7 +2609,7 @@ components:
       properties:
         items:
           items:
-            "$ref": "#/components/schemas/CoursePublic"
+            $ref: '#/components/schemas/CoursePublic'
           type: array
           title: Items
         total:
@@ -2212,7 +2632,7 @@ components:
       properties:
         items:
           items:
-            "$ref": "#/components/schemas/GroupPublic"
+            $ref: '#/components/schemas/GroupPublic'
           type: array
           title: Items
         total:
@@ -2235,7 +2655,7 @@ components:
       properties:
         items:
           items:
-            "$ref": "#/components/schemas/StudentGradeResponse"
+            $ref: '#/components/schemas/StudentGradeResponse'
           type: array
           title: Items
         total:
@@ -2258,7 +2678,7 @@ components:
       properties:
         items:
           items:
-            "$ref": "#/components/schemas/UserPublic"
+            $ref: '#/components/schemas/UserPublic'
           type: array
           title: Items
         total:
@@ -2363,7 +2783,7 @@ components:
           title: Average Score
         trend:
           items:
-            "$ref": "#/components/schemas/TrendPoint"
+            $ref: '#/components/schemas/TrendPoint'
           type: array
           title: Trend
       type: object
@@ -2590,7 +3010,7 @@ components:
       type: oauth2
       flows:
         password:
-          refreshUrl: "/api/v1/auth/refresh"
+          refreshUrl: /api/v1/auth/refresh
           scopes:
             users:list: List users
             users:read: Read user
@@ -2608,7 +3028,11 @@ components:
             courses:update: Update course
             courses:delete: Delete course
             grades:list: List grades
+            grades:read: Read grade
+            grades:create: Create grade
+            grades:update: Update grade
+            grades:delete: Delete grade
             analytics:read: Read analytics
             auth:me: Read current user
             roles:update: Update user roles
-          tokenUrl: "/api/v1/auth/login"
+          tokenUrl: /api/v1/auth/login

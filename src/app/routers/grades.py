@@ -1,22 +1,96 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Security
+from fastapi import APIRouter, Query, Security, status
 
 from app.core.error_responses import COMMON_ERROR_RESPONSES
+from app.core.exceptions import BadRequestError, NotFoundError
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import GradeServiceDep
+from app.models.grade import GradeCreate, GradePublic, GradeUpdate
 from app.schemas.base import PaginatedResponse
 from app.schemas.grade import StudentGradeResponse
 
 router = APIRouter(
-    prefix='/students',
     tags=['Grades'],
     responses=COMMON_ERROR_RESPONSES,
 )
 
 
 @router.get(
-    '/{student_id}/grades',
+    '/grades',
+    response_model=PaginatedResponse[StudentGradeResponse],
+    dependencies=[Security(get_current_user, scopes=['grades:list'])],
+)
+async def get_grades(
+    service: GradeServiceDep,
+    skip: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 100,
+):
+    return await service.get_all(skip=skip, limit=limit)
+
+
+@router.get(
+    '/grades/{grade_id}',
+    response_model=StudentGradeResponse,
+    dependencies=[Security(get_current_user, scopes=['grades:read'])],
+)
+async def get_grade(grade_id: int, service: GradeServiceDep):
+    grade = await service.get_by_id(grade_id)
+
+    if grade is None:
+        raise NotFoundError('Grade not found')
+
+    return grade
+
+
+@router.post(
+    '/grades',
+    response_model=GradePublic,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Security(get_current_user, scopes=['grades:create'])],
+)
+async def create_grade(grade_data: GradeCreate, service: GradeServiceDep):
+    try:
+        return await service.create(grade_data)
+    except ValueError as exc:
+        raise BadRequestError(str(exc)) from exc
+
+
+@router.put(
+    '/grades/{grade_id}',
+    response_model=GradePublic,
+    dependencies=[Security(get_current_user, scopes=['grades:update'])],
+)
+async def update_grade(
+    grade_id: int,
+    grade_data: GradeUpdate,
+    service: GradeServiceDep,
+):
+    try:
+        grade = await service.update(grade_id, grade_data)
+    except ValueError as exc:
+        raise BadRequestError(str(exc)) from exc
+
+    if grade is None:
+        raise NotFoundError('Grade not found')
+
+    return grade
+
+
+@router.delete(
+    '/grades/{grade_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Security(get_current_user, scopes=['grades:delete'])],
+)
+async def delete_grade(grade_id: int, service: GradeServiceDep):
+    deleted = await service.delete(grade_id)
+
+    if not deleted:
+        raise NotFoundError('Grade not found')
+
+
+@router.get(
+    '/students/{student_id}/grades',
     response_model=PaginatedResponse[StudentGradeResponse],
     dependencies=[Security(get_current_user, scopes=['grades:list'])],
 )
