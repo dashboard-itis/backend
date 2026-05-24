@@ -9,6 +9,7 @@ from app.models.assignment import Assignment
 from app.models.course import Course
 from app.models.grade import Grade
 from app.models.stream import Stream
+from app.models.user import User
 from app.repositories.base import Repository
 
 TrendPeriod = Literal['week', 'month', 'semester']
@@ -22,6 +23,37 @@ GRADE_D_MIN_SCORE = 50
 class GradeRepository(Repository[Grade]):
     def __init__(self, session: SessionDep):
         super().__init__(session, Grade)
+
+    async def get_with_relations(self, grade_id: int) -> Grade | None:
+        result = await self.session.exec(
+            select(Grade)
+            .where(Grade.id == grade_id)
+            .options(selectinload(Grade.assignment).selectinload(Assignment.course))
+        )
+        return result.first()
+
+    async def fetch_with_relations(
+        self,
+        skip: int = 0,
+        limit: int = 100,
+    ) -> list[Grade]:
+        result = await self.session.exec(
+            select(Grade)
+            .options(selectinload(Grade.assignment).selectinload(Assignment.course))
+            .offset(skip)
+            .limit(limit)
+        )
+        return list(result.all())
+
+    async def student_exists(self, student_id: int) -> bool:
+        result = await self.session.exec(select(User.id).where(User.id == student_id))
+        return result.first() is not None
+
+    async def assignment_exists(self, assignment_id: int) -> bool:
+        result = await self.session.exec(
+            select(Assignment.id).where(Assignment.id == assignment_id)
+        )
+        return result.first() is not None
 
     async def get_student_grades_with_course(
         self,
