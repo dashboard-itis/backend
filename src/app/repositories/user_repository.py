@@ -1,7 +1,10 @@
 from sqlalchemy.orm import selectinload
-from sqlmodel import select
+from sqlmodel import delete, select
 
 from app.dependencies.session import SessionDep
+from app.models.email_notification import EmailNotification
+from app.models.links import UserRoleLink
+from app.models.refresh_session import RefreshSession
 from app.models.role import Role
 from app.models.user import User
 from app.repositories.base import Repository
@@ -62,3 +65,23 @@ class UserRepository(Repository[User]):
     async def update_roles(self, user: User, roles: list[Role]) -> User:
         user.roles = roles
         return await self.save(user)
+
+    async def delete(self, object_id: int) -> User | None:
+        user = await self.get(object_id)
+
+        if user is None:
+            return None
+
+        await self.session.exec(
+            delete(EmailNotification).where(EmailNotification.user_id == object_id)
+        )
+        await self.session.exec(
+            delete(RefreshSession).where(RefreshSession.user_id == object_id)
+        )
+        await self.session.exec(
+            delete(UserRoleLink).where(UserRoleLink.user_id == object_id)
+        )
+        await self.session.delete(user)
+        await self.session.commit()
+
+        return user
