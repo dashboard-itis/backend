@@ -82,7 +82,7 @@ class UserService:
         if user is None:
             return None
 
-        roles = await self.role_repo.get_existing_by_names(role_names)
+        roles = await self.role_repo.get_by_names(role_names)
 
         if len(roles) != len(set(role_names)):
             existing_role_names = {role.name for role in roles}
