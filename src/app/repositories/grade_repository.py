@@ -5,7 +5,6 @@ from sqlalchemy.orm import selectinload
 from sqlmodel import select
 
 from app.dependencies.session import SessionDep
-from app.models.assignment import Assignment
 from app.models.course import Course
 from app.models.grade import Grade
 from app.models.stream import Stream
@@ -28,7 +27,7 @@ class GradeRepository(Repository[Grade]):
         result = await self.session.exec(
             select(Grade)
             .where(Grade.id == grade_id)
-            .options(selectinload(Grade.assignment).selectinload(Assignment.course))
+            .options(selectinload(Grade.course))
         )
         return result.first()
 
@@ -39,7 +38,7 @@ class GradeRepository(Repository[Grade]):
     ) -> list[Grade]:
         result = await self.session.exec(
             select(Grade)
-            .options(selectinload(Grade.assignment).selectinload(Assignment.course))
+            .options(selectinload(Grade.course))
             .offset(skip)
             .limit(limit)
         )
@@ -49,9 +48,9 @@ class GradeRepository(Repository[Grade]):
         result = await self.session.exec(select(User.id).where(User.id == student_id))
         return result.first() is not None
 
-    async def assignment_exists(self, assignment_id: int) -> bool:
+    async def course_exists(self, course_id: int) -> bool:
         result = await self.session.exec(
-            select(Assignment.id).where(Assignment.id == assignment_id)
+            select(Course.id).where(Course.id == course_id)
         )
         return result.first() is not None
 
@@ -64,7 +63,7 @@ class GradeRepository(Repository[Grade]):
         result = await self.session.exec(
             select(Grade)
             .where(Grade.student_id == student_id)
-            .options(selectinload(Grade.assignment).selectinload(Assignment.course))
+            .options(selectinload(Grade.course))
             .offset(skip)
             .limit(limit)
         )
@@ -73,8 +72,7 @@ class GradeRepository(Repository[Grade]):
     async def get_group_average_score(self, group_id: int) -> float:
         result = await self.session.exec(
             select(func.avg(Grade.score))
-            .join(Assignment, Grade.assignment_id == Assignment.id)
-            .join(Course, Assignment.course_id == Course.id)
+            .join(Course, Grade.course_id == Course.id)
             .join(Stream, Course.stream_id == Stream.id)
             .where(Stream.group_id == group_id)
         )
@@ -85,8 +83,7 @@ class GradeRepository(Repository[Grade]):
     async def get_group_grade_distribution(self, group_id: int) -> dict[str, int]:
         result = await self.session.exec(
             select(Grade.score)
-            .join(Assignment, Grade.assignment_id == Assignment.id)
-            .join(Course, Assignment.course_id == Course.id)
+            .join(Course, Grade.course_id == Course.id)
             .join(Stream, Course.stream_id == Stream.id)
             .where(Stream.group_id == group_id)
         )
@@ -140,8 +137,7 @@ class GradeRepository(Repository[Grade]):
                     func.avg(Grade.score),
                 )
                 .join(Course, Course.stream_id == Stream.id)
-                .join(Assignment, Assignment.course_id == Course.id)
-                .join(Grade, Grade.assignment_id == Assignment.id)
+                .join(Grade, Grade.course_id == Course.id)
                 .where(Stream.group_id == group_id)
                 .group_by(Stream.year, Stream.semester)
                 .order_by(Stream.year, Stream.semester)
@@ -161,8 +157,7 @@ class GradeRepository(Repository[Grade]):
                 period.label('period'),
                 func.avg(Grade.score),
             )
-            .join(Assignment, Grade.assignment_id == Assignment.id)
-            .join(Course, Assignment.course_id == Course.id)
+            .join(Course, Grade.course_id == Course.id)
             .join(Stream, Course.stream_id == Stream.id)
             .where(Stream.group_id == group_id)
             .group_by(period)
@@ -197,8 +192,7 @@ class GradeRepository(Repository[Grade]):
                     Stream.year,
                     func.avg(Grade.score),
                 )
-                .join(Assignment, Grade.assignment_id == Assignment.id)
-                .join(Course, Assignment.course_id == Course.id)
+                .join(Course, Grade.course_id == Course.id)
                 .join(Stream, Course.stream_id == Stream.id)
                 .where(Grade.student_id == student_id)
                 .group_by(Stream.year, Stream.semester)

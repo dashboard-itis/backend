@@ -4036,9 +4036,9 @@
             "type": "integer",
             "title": "Student Id"
           },
-          "assignment_id": {
+          "course_id": {
             "type": "integer",
-            "title": "Assignment Id"
+            "title": "Course Id"
           },
           "score": {
             "type": "number",
@@ -4061,7 +4061,7 @@
         "type": "object",
         "required": [
           "student_id",
-          "assignment_id",
+          "course_id",
           "score"
         ],
         "title": "GradeCreate"
@@ -4093,9 +4093,9 @@
             "type": "integer",
             "title": "Student Id"
           },
-          "assignment_id": {
+          "course_id": {
             "type": "integer",
-            "title": "Assignment Id"
+            "title": "Course Id"
           },
           "score": {
             "type": "number",
@@ -4118,7 +4118,7 @@
         "type": "object",
         "required": [
           "student_id",
-          "assignment_id",
+          "course_id",
           "score"
         ],
         "title": "GradePublic"
@@ -4136,7 +4136,7 @@
             ],
             "title": "Student Id"
           },
-          "assignment_id": {
+          "course_id": {
             "anyOf": [
               {
                 "type": "integer"
@@ -4145,7 +4145,7 @@
                 "type": "null"
               }
             ],
-            "title": "Assignment Id"
+            "title": "Course Id"
           },
           "score": {
             "anyOf": [
@@ -4615,9 +4615,9 @@
             "type": "integer",
             "title": "Student Id"
           },
-          "assignment_id": {
+          "course_id": {
             "type": "integer",
-            "title": "Assignment Id"
+            "title": "Course Id"
           },
           "score": {
             "type": "number",
@@ -4654,24 +4654,13 @@
               }
             ],
             "title": "Course Name"
-          },
-          "assignment_title": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Assignment Title"
           }
         },
         "type": "object",
         "required": [
           "id",
           "student_id",
-          "assignment_id",
+          "course_id",
           "score",
           "created_at",
           "updated_at"
