@@ -2409,9 +2409,9 @@ components:
         student_id:
           type: integer
           title: Student Id
-        assignment_id:
+        course_id:
           type: integer
-          title: Assignment Id
+          title: Course Id
         score:
           type: number
           maximum: 100.0
@@ -2425,7 +2425,7 @@ components:
       type: object
       required:
       - student_id
-      - assignment_id
+      - course_id
       - score
       title: GradeCreate
     GradePublic:
@@ -2446,9 +2446,9 @@ components:
         student_id:
           type: integer
           title: Student Id
-        assignment_id:
+        course_id:
           type: integer
-          title: Assignment Id
+          title: Course Id
         score:
           type: number
           maximum: 100.0
@@ -2462,7 +2462,7 @@ components:
       type: object
       required:
       - student_id
-      - assignment_id
+      - course_id
       - score
       title: GradePublic
     GradeUpdate:
@@ -2472,11 +2472,11 @@ components:
           - type: integer
           - type: 'null'
           title: Student Id
-        assignment_id:
+        course_id:
           anyOf:
           - type: integer
           - type: 'null'
-          title: Assignment Id
+          title: Course Id
         score:
           anyOf:
           - type: number
@@ -2800,9 +2800,9 @@ components:
         student_id:
           type: integer
           title: Student Id
-        assignment_id:
+        course_id:
           type: integer
-          title: Assignment Id
+          title: Course Id
         score:
           type: number
           title: Score
@@ -2824,16 +2824,11 @@ components:
           - type: string
           - type: 'null'
           title: Course Name
-        assignment_title:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Assignment Title
       type: object
       required:
       - id
       - student_id
-      - assignment_id
+      - course_id
       - score
       - created_at
       - updated_at

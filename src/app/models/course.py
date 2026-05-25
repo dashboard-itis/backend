@@ -7,6 +7,7 @@ from app.models.base import BaseModel
 if TYPE_CHECKING:
     from app.models.assignment import Assignment
     from app.models.attendance import Attendance
+    from app.models.grade import Grade
     from app.models.stream import Stream
     from app.models.user import User
 
@@ -25,6 +26,7 @@ class Course(CourseBase, BaseModel, table=True):
     teacher: Optional['User'] = Relationship(back_populates='courses')
     assignments: list['Assignment'] = Relationship(back_populates='course')
     attendance_records: list['Attendance'] = Relationship(back_populates='course')
+    grades: list['Grade'] = Relationship(back_populates='course')
 
 
 class CourseCreate(CourseBase):

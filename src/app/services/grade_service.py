@@ -9,19 +9,17 @@ class GradeService:
         self.grade_repo = grade_repo
 
     def _to_student_grade_response(self, grade) -> StudentGradeResponse:
-        assignment = grade.assignment
-        course = assignment.course if assignment else None
+        course = grade.course
 
         return StudentGradeResponse(
             id=grade.id,
             student_id=grade.student_id,
-            assignment_id=grade.assignment_id,
+            course_id=grade.course_id,
             score=grade.score,
             comment=grade.comment,
             created_at=grade.created_at,
             updated_at=grade.updated_at,
             course_name=course.name if course else None,
-            assignment_title=assignment.title if assignment else None,
         )
 
     async def get_all(
@@ -46,7 +44,7 @@ class GradeService:
     async def create(self, grade_data: GradeCreate) -> GradePublic:
         await self._validate_references(
             student_id=grade_data.student_id,
-            assignment_id=grade_data.assignment_id,
+            course_id=grade_data.course_id,
         )
         grade = await self.grade_repo.create(**grade_data.model_dump())
         return GradePublic.model_validate(grade)
@@ -64,7 +62,7 @@ class GradeService:
         update_data = grade_data.model_dump(exclude_unset=True)
         await self._validate_references(
             student_id=update_data.get('student_id'),
-            assignment_id=update_data.get('assignment_id'),
+            course_id=update_data.get('course_id'),
         )
 
         grade = await self.grade_repo.update(grade_id, **update_data)
@@ -97,14 +95,12 @@ class GradeService:
     async def _validate_references(
         self,
         student_id: int | None = None,
-        assignment_id: int | None = None,
+        course_id: int | None = None,
     ) -> None:
         if student_id is not None and not await self.grade_repo.student_exists(
             student_id
         ):
             raise ValueError('Student not found')
 
-        if assignment_id is not None and not await self.grade_repo.assignment_exists(
-            assignment_id
-        ):
-            raise ValueError('Assignment not found')
+        if course_id is not None and not await self.grade_repo.course_exists(course_id):
+            raise ValueError('Course not found')

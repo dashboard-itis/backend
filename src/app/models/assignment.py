@@ -7,7 +7,6 @@ from app.models.base import BaseModel
 
 if TYPE_CHECKING:
     from app.models.course import Course
-    from app.models.grade import Grade
     from app.models.submission import Submission
 
 
@@ -24,7 +23,6 @@ class Assignment(AssignmentBase, BaseModel, table=True):
     __tablename__ = 'assignments'
 
     course: Optional['Course'] = Relationship(back_populates='assignments')
-    grades: list['Grade'] = Relationship(back_populates='assignment')
     submissions: list['Submission'] = Relationship(back_populates='assignment')
 
 
