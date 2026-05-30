@@ -12,13 +12,7 @@ class GradeService:
         course = grade.course
 
         return StudentGradeResponse(
-            id=grade.id,
-            student_id=grade.student_id,
-            course_id=grade.course_id,
-            score=grade.score,
-            comment=grade.comment,
-            created_at=grade.created_at,
-            updated_at=grade.updated_at,
+            **grade.model_dump(),
             course_name=course.name if course else None,
         )
 
