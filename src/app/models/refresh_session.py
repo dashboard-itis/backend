@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
@@ -34,7 +34,7 @@ class RefreshSession(RefreshSessionBase, BaseModel, table=True):
 
     @property
     def is_valid(self) -> bool:
-        now = datetime.now(timezone.utc)
+        now = datetime.utcnow()
         return not self.is_invalidated and self.expires_at > now
 
 

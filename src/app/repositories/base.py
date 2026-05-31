@@ -2,7 +2,7 @@ from typing import Generic, TypeVar
 
 from sqlalchemy import func
 from sqlalchemy.sql import Select
-from sqlmodel import select
+from sqlmodel import delete, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.models.base import BaseModel
@@ -89,3 +89,12 @@ class Repository(Generic[T]):
         await self.session.commit()
 
         return obj
+
+    async def delete_by_filters(self, filters: dict) -> None:
+        query = delete(self.model)
+
+        for field_name, value in filters.items():
+            query = query.where(getattr(self.model, field_name) == value)
+
+        await self.session.exec(query)
+        await self.session.commit()

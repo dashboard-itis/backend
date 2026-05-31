@@ -13,6 +13,7 @@ from app.repositories.role_permission_repository import RolePermissionRepository
 from app.repositories.role_repository import RoleRepository
 from app.repositories.submission_repository import SubmissionRepository
 from app.repositories.user_repository import UserRepository
+from app.repositories.user_role_link_repository import UserRoleLinkRepository
 
 UserRepositoryDep = Annotated[
     UserRepository,
@@ -67,4 +68,9 @@ SubmissionRepositoryDep = Annotated[
 EmailNotificationRepositoryDep = Annotated[
     EmailNotificationRepository,
     Depends(EmailNotificationRepository),
+]
+
+UserRoleLinkRepositoryDep = Annotated[
+    UserRoleLinkRepository,
+    Depends(UserRoleLinkRepository),
 ]

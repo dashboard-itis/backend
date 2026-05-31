@@ -64,6 +64,14 @@ class UserPublic(UserBase, BaseModel):
 
     @classmethod
     def from_user(cls, user: User) -> 'UserPublic':
-        user_public = cls.model_validate(user)
-        user_public.roles = [role.name for role in user.roles]
-        return user_public
+        return cls(
+            id=user.id,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            group_id=user.group_id,
+            is_confirmed=user.is_confirmed,
+            roles=[role.name for role in user.roles],
+        )

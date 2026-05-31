@@ -1,4 +1,10 @@
-from app.dependencies.repositories import RoleRepositoryDep, UserRepositoryDep
+from app.dependencies.repositories import (
+    EmailNotificationRepositoryDep,
+    RefreshSessionRepositoryDep,
+    RoleRepositoryDep,
+    UserRepositoryDep,
+    UserRoleLinkRepositoryDep,
+)
 from app.models.user import UserCreate, UserPublic, UserUpdate
 from app.schemas.base import PaginatedResponse
 from app.schemas.user_filters import UserFilters
@@ -10,9 +16,15 @@ class UserService:
         self,
         user_repo: UserRepositoryDep,
         role_repo: RoleRepositoryDep,
+        email_notification_repo: EmailNotificationRepositoryDep,
+        refresh_session_repo: RefreshSessionRepositoryDep,
+        user_role_link_repo: UserRoleLinkRepositoryDep,
     ):
         self.user_repo = user_repo
         self.role_repo = role_repo
+        self.email_notification_repo = email_notification_repo
+        self.refresh_session_repo = refresh_session_repo
+        self.user_role_link_repo = user_role_link_repo
 
     async def get_all(self, filters: UserFilters) -> PaginatedResponse[UserPublic]:
         db_filters = filters.model_dump(
@@ -82,7 +94,7 @@ class UserService:
         if user is None:
             return None
 
-        roles = await self.role_repo.get_existing_by_names(role_names)
+        roles = await self.role_repo.get_by_names(role_names)
 
         if len(roles) != len(set(role_names)):
             existing_role_names = {role.name for role in roles}
@@ -96,5 +108,13 @@ class UserService:
         return UserPublic.from_user(user_with_roles or updated_user)
 
     async def delete(self, user_id: int) -> bool:
+        user = await self.user_repo.get(user_id)
+
+        if user is None:
+            return False
+
+        await self.email_notification_repo.delete_by_filters({'user_id': user_id})
+        await self.refresh_session_repo.delete_by_filters({'user_id': user_id})
+        await self.user_role_link_repo.delete_by_filters({'user_id': user_id})
         user = await self.user_repo.delete(user_id)
         return user is not None
