@@ -12,3 +12,14 @@ class StudentGradeResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     course_name: str | None = None
+
+
+class GradeImportError(BaseModel):
+    row: int
+    message: str
+
+
+class GradeImportResult(BaseModel):
+    created: int
+    failed: int
+    errors: list[GradeImportError] = []

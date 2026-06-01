@@ -1955,6 +1955,70 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/grades/import:
+    post:
+      tags:
+      - Grades
+      summary: Import Grades
+      operationId: import_grades_api_v1_grades_import_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_import_grades_api_v1_grades_import_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeImportResult'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - grades:create
   /api/v1/grades/{grade_id}:
     get:
       tags:
@@ -2244,6 +2308,16 @@ paths:
               schema: {}
 components:
   schemas:
+    Body_import_grades_api_v1_grades_import_post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_import_grades_api_v1_grades_import_post
     Body_login_api_v1_auth_login_post:
       properties:
         grant_type:
@@ -2428,6 +2502,38 @@ components:
       - course_id
       - score
       title: GradeCreate
+    GradeImportError:
+      properties:
+        row:
+          type: integer
+          title: Row
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - row
+      - message
+      title: GradeImportError
+    GradeImportResult:
+      properties:
+        created:
+          type: integer
+          title: Created
+        failed:
+          type: integer
+          title: Failed
+        errors:
+          items:
+            $ref: '#/components/schemas/GradeImportError'
+          type: array
+          title: Errors
+          default: []
+      type: object
+      required:
+      - created
+      - failed
+      title: GradeImportResult
     GradePublic:
       properties:
         id:

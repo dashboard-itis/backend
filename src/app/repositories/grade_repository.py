@@ -54,6 +54,18 @@ class GradeRepository(Repository[Grade]):
         )
         return result.first() is not None
 
+    async def get_student_id_by_email(self, email: str) -> int | None:
+        result = await self.session.exec(
+            select(User.id).where(func.lower(User.email) == email.lower())
+        )
+        return result.first()
+
+    async def get_course_id_by_name(self, name: str) -> int | None:
+        result = await self.session.exec(
+            select(Course.id).where(func.lower(Course.name) == name.lower())
+        )
+        return result.first()
+
     async def get_student_grades_with_course(
         self,
         student_id: int,

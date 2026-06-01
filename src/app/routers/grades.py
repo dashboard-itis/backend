@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Security, status
+from fastapi import APIRouter, File, Query, Security, UploadFile, status
 
 from app.core.error_responses import COMMON_ERROR_RESPONSES
 from app.core.exceptions import BadRequestError, NotFoundError
@@ -8,7 +8,7 @@ from app.dependencies.auth import get_current_user
 from app.dependencies.services import GradeServiceDep
 from app.models.grade import GradeCreate, GradePublic, GradeUpdate
 from app.schemas.base import PaginatedResponse
-from app.schemas.grade import StudentGradeResponse
+from app.schemas.grade import GradeImportResult, StudentGradeResponse
 
 router = APIRouter(
     tags=['Grades'],
@@ -27,6 +27,24 @@ async def get_grades(
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
 ):
     return await service.get_all(skip=skip, limit=limit)
+
+
+@router.post(
+    '/grades/import',
+    response_model=GradeImportResult,
+    dependencies=[Security(get_current_user, scopes=['grades:create'])],
+)
+async def import_grades(
+    service: GradeServiceDep,
+    file: Annotated[UploadFile, File(...)],
+):
+    try:
+        return await service.import_from_file(
+            content=await file.read(),
+            filename=file.filename or '',
+        )
+    except ValueError as exc:
+        raise BadRequestError(str(exc)) from exc
 
 
 @router.get(
