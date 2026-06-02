@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, File, Query, Security, UploadFile, status
+from fastapi.responses import Response
 
 from app.core.error_responses import COMMON_ERROR_RESPONSES
 from app.core.exceptions import BadRequestError, NotFoundError
@@ -45,6 +46,27 @@ async def import_grades(
         )
     except ValueError as exc:
         raise BadRequestError(str(exc)) from exc
+
+
+@router.get(
+    '/grades/export',
+    dependencies=[Security(get_current_user, scopes=['grades:list'])],
+)
+async def export_grades(
+    service: GradeServiceDep,
+    student_id: Annotated[int | None, Query(ge=1)] = None,
+    course_id: Annotated[int | None, Query(ge=1)] = None,
+):
+    content = await service.export_to_csv(
+        student_id=student_id,
+        course_id=course_id,
+    )
+
+    return Response(
+        content=content,
+        media_type='text/csv; charset=utf-8',
+        headers={'Content-Disposition': 'attachment; filename="grades_export.csv"'},
+    )
 
 
 @router.get(

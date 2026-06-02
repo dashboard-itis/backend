@@ -89,6 +89,49 @@ class GradeService:
             errors=errors,
         )
 
+    async def export_to_csv(
+        self,
+        student_id: int | None = None,
+        course_id: int | None = None,
+    ) -> bytes:
+        rows = await self.grade_repo.fetch_export_rows(
+            student_id=student_id,
+            course_id=course_id,
+        )
+        output = StringIO()
+        writer = csv.writer(output)
+        writer.writerow(
+            [
+                'student_email',
+                'student_last_name',
+                'student_first_name',
+                'course_name',
+                'score',
+                'comment',
+            ]
+        )
+
+        for (
+            student_email,
+            student_last_name,
+            student_first_name,
+            course_name,
+            score,
+            comment,
+        ) in rows:
+            writer.writerow(
+                [
+                    student_email,
+                    student_last_name,
+                    student_first_name,
+                    course_name,
+                    score,
+                    comment or '',
+                ]
+            )
+
+        return output.getvalue().encode('utf-8-sig')
+
     async def update(
         self,
         grade_id: int,

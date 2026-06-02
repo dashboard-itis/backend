@@ -44,6 +44,34 @@ class GradeRepository(Repository[Grade]):
         )
         return list(result.all())
 
+    async def fetch_export_rows(
+        self,
+        student_id: int | None = None,
+        course_id: int | None = None,
+    ) -> list[tuple[str, str, str, str, float, str | None]]:
+        query = (
+            select(
+                User.email,
+                User.last_name,
+                User.first_name,
+                Course.name,
+                Grade.score,
+                Grade.comment,
+            )
+            .join(User, Grade.student_id == User.id)
+            .join(Course, Grade.course_id == Course.id)
+            .order_by(User.last_name, User.first_name, Course.name, Grade.created_at)
+        )
+
+        if student_id is not None:
+            query = query.where(Grade.student_id == student_id)
+
+        if course_id is not None:
+            query = query.where(Grade.course_id == course_id)
+
+        result = await self.session.exec(query)
+        return list(result.all())
+
     async def student_exists(self, student_id: int) -> bool:
         result = await self.session.exec(select(User.id).where(User.id == student_id))
         return result.first() is not None
