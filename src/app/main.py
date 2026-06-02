@@ -11,6 +11,7 @@ from starlette.exceptions import HTTPException
 from app.core.exceptions import AppError
 from app.core.rate_limit import limiter
 from app.core.settings import settings
+from app.graphql.router import graphql_router
 from app.handlers.errors import (
     app_exception_handler,
     http_exception_handler,
@@ -59,6 +60,7 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix='/api/v1')
+app.include_router(graphql_router, prefix='/graphql')
 
 
 @app.get('/health')
