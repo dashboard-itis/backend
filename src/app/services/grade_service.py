@@ -8,6 +8,7 @@ from app.dependencies.repositories import GradeRepositoryDep
 from app.models.grade import GradeCreate, GradePublic, GradeUpdate
 from app.schemas.base import PaginatedResponse
 from app.schemas.grade import (
+    GradeExportItem,
     GradeImportError,
     GradeImportResult,
     StudentGradeResponse,
@@ -89,48 +90,40 @@ class GradeService:
             errors=errors,
         )
 
-    async def export_to_csv(
+    async def export_to_json(
         self,
         student_id: int | None = None,
         course_id: int | None = None,
-    ) -> bytes:
+        group_id: int | None = None,
+    ) -> list[GradeExportItem]:
         rows = await self.grade_repo.fetch_export_rows(
             student_id=student_id,
             course_id=course_id,
-        )
-        output = StringIO()
-        writer = csv.writer(output)
-        writer.writerow(
-            [
-                'student_email',
-                'student_last_name',
-                'student_first_name',
-                'course_name',
-                'score',
-                'comment',
-            ]
+            group_id=group_id,
         )
 
-        for (
-            student_email,
-            student_last_name,
-            student_first_name,
-            course_name,
-            score,
-            comment,
-        ) in rows:
-            writer.writerow(
-                [
-                    student_email,
-                    student_last_name,
-                    student_first_name,
-                    course_name,
-                    score,
-                    comment or '',
-                ]
+        return [
+            GradeExportItem(
+                student_email=student_email,
+                student_last_name=student_last_name,
+                student_first_name=student_first_name,
+                group_id=group_id,
+                group_name=group_name,
+                course_name=course_name,
+                score=score,
+                comment=comment,
             )
-
-        return output.getvalue().encode('utf-8-sig')
+            for (
+                student_email,
+                student_last_name,
+                student_first_name,
+                group_id,
+                group_name,
+                course_name,
+                score,
+                comment,
+            ) in rows
+        ]
 
     async def update(
         self,

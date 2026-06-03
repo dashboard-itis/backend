@@ -68,7 +68,7 @@ class EmailSettings(BaseSettings):
     validate_certs: bool = True
     template_folder: str = 'app/templates/email'
     app_host: str = 'http://localhost:8000'
-    confirmation_url: str = 'http://localhost:3000/confirm-account'
+    confirmation_url: str = 'https://seccur.duckdns.org/confirm-account'
     confirmation_code_lifetime_minutes: int = 30
 
 

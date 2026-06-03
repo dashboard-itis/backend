@@ -2047,12 +2047,25 @@ paths:
             minimum: 1
           - type: 'null'
           title: Course Id
+      - name: group_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+          title: Group Id
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GradeExportItem'
+                title: Response Export Grades Api V1 Grades Export Get
         '400':
           description: Bad request
           content:
@@ -2578,6 +2591,46 @@ components:
       - course_id
       - score
       title: GradeCreate
+    GradeExportItem:
+      properties:
+        student_email:
+          type: string
+          title: Student Email
+        student_last_name:
+          type: string
+          title: Student Last Name
+        student_first_name:
+          type: string
+          title: Student First Name
+        group_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Group Id
+        group_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Group Name
+        course_name:
+          type: string
+          title: Course Name
+        score:
+          type: number
+          title: Score
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+      type: object
+      required:
+      - student_email
+      - student_last_name
+      - student_first_name
+      - course_name
+      - score
+      title: GradeExportItem
     GradeImportError:
       properties:
         row:

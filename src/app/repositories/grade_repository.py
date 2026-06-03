@@ -7,6 +7,7 @@ from sqlmodel import select
 from app.dependencies.session import SessionDep
 from app.models.course import Course
 from app.models.grade import Grade
+from app.models.group import Group
 from app.models.stream import Stream
 from app.models.user import User
 from app.repositories.base import Repository
@@ -48,18 +49,22 @@ class GradeRepository(Repository[Grade]):
         self,
         student_id: int | None = None,
         course_id: int | None = None,
-    ) -> list[tuple[str, str, str, str, float, str | None]]:
+        group_id: int | None = None,
+    ) -> list[tuple[str, str, str, int | None, str | None, str, float, str | None]]:
         query = (
             select(
                 User.email,
                 User.last_name,
                 User.first_name,
+                User.group_id,
+                Group.name,
                 Course.name,
                 Grade.score,
                 Grade.comment,
             )
             .join(User, Grade.student_id == User.id)
             .join(Course, Grade.course_id == Course.id)
+            .outerjoin(Group, User.group_id == Group.id)
             .order_by(User.last_name, User.first_name, Course.name, Grade.created_at)
         )
 
@@ -68,6 +73,9 @@ class GradeRepository(Repository[Grade]):
 
         if course_id is not None:
             query = query.where(Grade.course_id == course_id)
+
+        if group_id is not None:
+            query = query.where(User.group_id == group_id)
 
         result = await self.session.exec(query)
         return list(result.all())

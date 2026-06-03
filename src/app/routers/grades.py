@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi import APIRouter, File, Query, Security, UploadFile, status
-from fastapi.responses import Response
 
 from app.core.error_responses import COMMON_ERROR_RESPONSES
 from app.core.exceptions import BadRequestError, NotFoundError
@@ -9,7 +8,7 @@ from app.dependencies.auth import get_current_user
 from app.dependencies.services import GradeServiceDep
 from app.models.grade import GradeCreate, GradePublic, GradeUpdate
 from app.schemas.base import PaginatedResponse
-from app.schemas.grade import GradeImportResult, StudentGradeResponse
+from app.schemas.grade import GradeExportItem, GradeImportResult, StudentGradeResponse
 
 router = APIRouter(
     tags=['Grades'],
@@ -50,22 +49,19 @@ async def import_grades(
 
 @router.get(
     '/grades/export',
+    response_model=list[GradeExportItem],
     dependencies=[Security(get_current_user, scopes=['grades:list'])],
 )
 async def export_grades(
     service: GradeServiceDep,
     student_id: Annotated[int | None, Query(ge=1)] = None,
     course_id: Annotated[int | None, Query(ge=1)] = None,
+    group_id: Annotated[int | None, Query(ge=1)] = None,
 ):
-    content = await service.export_to_csv(
+    return await service.export_to_json(
         student_id=student_id,
         course_id=course_id,
-    )
-
-    return Response(
-        content=content,
-        media_type='text/csv; charset=utf-8',
-        headers={'Content-Disposition': 'attachment; filename="grades_export.csv"'},
+        group_id=group_id,
     )
 
 
